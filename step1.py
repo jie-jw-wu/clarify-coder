@@ -7,20 +7,31 @@ from tqdm import tqdm
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
+# Global variables for configuration and prompt template
+TEMPLATE = """
+You are given a coding problem description. Your task is to write the corresponding Python code to solve the problem. Follow the problem requirements carefully and ensure your code is efficient and correct. Here is the problem description:
+{question}
+Please provide the complete Python code below:
+"""
+
+SAFETY_SETTINGS = [
+    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+]
+
+GENERATION_CONFIG = {
+    "temperature": 0.1,
+    "top_p": 1,
+    "top_k": 1,
+    "max_output_tokens": 2048,
+}
+
 def configure_genai(api_key):
     genai.configure(api_key=api_key)
-    safety_settings = [
-        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-    ]
-    generation_config = {
-        "temperature": 0.1,
-        "top_p": 1,
-        "top_k": 1,
-        "max_output_tokens": 2048,
-    }
+    safety_settings = SAFETY_SETTINGS
+    generation_config = GENERATION_CONFIG
     model = genai.GenerativeModel(
         model_name="gemini-pro",
         generation_config=generation_config,
@@ -29,18 +40,13 @@ def configure_genai(api_key):
     return model
 
 def load_questions(dir_path):
-    template = """
-    You are given a coding problem description. Your task is to write the corresponding Python code to solve the problem. Follow the problem requirements carefully and ensure your code is efficient and correct. Here is the problem description:
-    {question}
-    Please provide the complete Python code below:
-    """
     formatted_data = []
     for folder_path in tqdm(glob.glob(os.path.join(dir_path, '*')), desc="Processing Folders", unit="folder"):
         question_file_path = os.path.join(folder_path, "question.txt")
         if os.path.isfile(question_file_path):
             with open(question_file_path, 'r') as file:
                 question_text = file.read().strip()
-                formatted_entry = template.format(question=question_text)
+                formatted_entry = TEMPLATE.format(question=question_text)
                 formatted_data.append(formatted_entry)
     return formatted_data
 
