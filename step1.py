@@ -1,0 +1,103 @@
+import os
+import glob
+import json
+import time
+import argparse
+from tqdm import tqdm
+import google.generativeai as genai
+from google.api_core.exceptions import ResourceExhausted
+
+# Global variables for configuration and prompt template
+TEMPLATE = """
+You are given a coding problem description. Your task is to write the corresponding Python code to solve the problem. Follow the problem requirements carefully and ensure your code is efficient and correct. Here is the problem description:
+{question}
+Please provide the complete Python code below:
+"""
+
+SAFETY_SETTINGS = [
+    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+]
+
+GENERATION_CONFIG = {
+    "temperature": 0.1,
+    "top_p": 1,
+    "top_k": 1,
+    "max_output_tokens": 2048,
+}
+
+def configure_genai(api_key):
+    genai.configure(api_key=api_key)
+    safety_settings = SAFETY_SETTINGS
+    generation_config = GENERATION_CONFIG
+    model = genai.GenerativeModel(
+        model_name="gemini-pro",
+        generation_config=generation_config,
+        safety_settings=safety_settings
+    )
+    return model
+
+def load_questions(dir_path):
+    formatted_data = []
+    for folder_path in tqdm(glob.glob(os.path.join(dir_path, '*')), desc="Processing Folders", unit="folder"):
+        question_file_path = os.path.join(folder_path, "question.txt")
+        if os.path.isfile(question_file_path):
+            with open(question_file_path, 'r') as file:
+                question_text = file.read().strip()
+                formatted_entry = TEMPLATE.format(question=question_text)
+                formatted_data.append(formatted_entry)
+    return formatted_data
+
+def generate_responses(model, formatted_data):
+    output_data = []
+    for i, prompt in enumerate(tqdm(formatted_data, desc="Generating Responses", unit="entry"), start=1):
+        try:
+            response = model.generate_content(prompt)
+            input_output_pair = {'input': prompt, 'output': response.text}
+            output_data.append(input_output_pair)
+        except ResourceExhausted:
+            print(f"ResourceExhausted error occurred for prompt {i}. Retrying after a delay...")
+            time.sleep(60)
+            try:
+                response = model.generate_content(prompt)
+                input_output_pair = {'input': prompt, 'output': response.text}
+                output_data.append(input_output_pair)
+            except Exception as e:
+                print(f"Error occurred for prompt {i} even after retrying: {e}")
+                input_output_pair = {'input': prompt, 'output': response.prompt_feedback}
+                output_data.append(input_output_pair)
+        except ValueError as e:
+            print(f"Error occurred for prompt {i}: {e}")
+            input_output_pair = {'input': prompt, 'output': response.prompt_feedback}
+            output_data.append(input_output_pair)
+    return output_data
+
+def save_output_to_json(output_data, json_file_path):
+    with open(json_file_path, 'w') as json_file:
+        json.dump(output_data, json_file, indent=4)
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate Python code from coding problem descriptions using Google Generative AI.")
+    parser.add_argument('--api_key', type=str, required=True, help="API key for Google Generative AI.")
+    parser.add_argument('--dir_path', type=str, default="APPS/train", help="Directory containing folders with coding problems.")
+    parser.add_argument('--json_file_path', type=str, default="OG-Code_Gemini_zeroshot_APPStrain.json", help="Path to save the output JSON file.")
+    args = parser.parse_args()
+
+    print("Phase 1: Loading questions")
+    formatted_data = load_questions(args.dir_path)
+
+    print("Phase 2: Configuring generative model")
+    model = configure_genai(args.api_key)
+
+    print("Phase 3: Generating responses")
+    output_data = generate_responses(model, formatted_data)
+
+    print("Phase 4: Saving output to JSON file")
+    save_output_to_json(output_data, args.json_file_path)
+
+    print(f"\nJSON file with input-output pairs saved at: {args.json_file_path}")
+
+if __name__ == "__main__":
+    main()
