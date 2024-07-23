@@ -65,28 +65,22 @@ def generate_responses(model, formatted_data, jsonl_file_path):
         for i, prompt in enumerate(tqdm(formatted_data, desc="Generating Responses", unit="entry"), start=1):
             try:
                 response = model.generate_content(prompt)
-                if response.text:
-                    input_output_pair = {'input': prompt, 'output': response.text}
-                else:
-                    input_output_pair = {'input': prompt, 'output': response.prompt_feedback}
+                input_output_pair = {'input': prompt, 'output': response.text}
                 jsonl_file.write(json.dumps(input_output_pair) + '\n')
             except ResourceExhausted:
                 print(f"ResourceExhausted error occurred for prompt {i}. Retrying after a delay...")
                 time.sleep(60)
                 try:
                     response = model.generate_content(prompt)
-                    if response.text:
-                        input_output_pair = {'input': prompt, 'output': response.text}
-                    else:
-                        input_output_pair = {'input': prompt, 'output': response.prompt_feedback}
+                    input_output_pair = {'input': prompt, 'output': response.text}
                     jsonl_file.write(json.dumps(input_output_pair) + '\n')
                 except Exception as e:
                     print(f"Error occurred for prompt {i} even after retrying: {e}")
-                    input_output_pair = {'input': prompt, 'output': response.prompt_feedback}
+                    input_output_pair = {'input': prompt, 'output': str(response.prompt_feedback)}
                     jsonl_file.write(json.dumps(input_output_pair) + '\n')
             except ValueError as e:
                 print(f"Error occurred for prompt {i}: {e}")
-                input_output_pair = {'input': prompt, 'output': response.prompt_feedback}
+                input_output_pair = {'input': prompt, 'output': str(response.prompt_feedback)}
                 jsonl_file.write(json.dumps(input_output_pair) + '\n')
 
 def main():
