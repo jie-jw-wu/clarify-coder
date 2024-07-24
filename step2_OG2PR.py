@@ -8,7 +8,54 @@ from tqdm import tqdm
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
-# PROMPT TEMPLATE (please change to get Ambiguous/Inconsistent/Incomplete description)
+'''
+PROMPT TEMPLATE TO GENERATE AMBIGUOUS PROBLEM
+
+## COPY FROM HERE ##
+
+Based on the knowledge that ambiguous problem descriptions can be created by introducing multiple valid interpretations or unspecified details, think step-by-step to rewrite the given coding problem description and make it ambiguous. Only output the modified problem description itself.
+
+Original Problem Description:
+{question}
+
+Ambiguous Problem:
+
+## COPY TILL HERE ##
+'''
+
+'''
+PROMPT TEMPLATE TO GENERATE INCONSISTENT PROBLEM
+
+## COPY FROM HERE ##
+
+Based on the knowledge that a problem becomes inconsistent if some statements in the description show conflict, think step-by-step to rewrite the given coding problem description and make it inconsistent. Only output the modified problem description itself.
+
+Original Problem Description:
+{question}
+
+Inconsistent Problem:
+
+## COPY TILL HERE ##
+
+'''
+
+'''
+PROMPT TEMPLATE TO GENERATE INCOMPLETE PROBLEM
+
+## COPY FROM HERE ##
+
+Based on the knowledge that removing some of the key concepts and conditions that are crucial for solving the problem makes it incomplete, think step-by-step to rewrite the given coding problem description to make it incomplete. Only output the modified problem description itself.
+
+Original Problem Description:
+{question}
+
+Incomplete Problem:
+
+## COPY TILL HERE ##
+
+'''
+
+# PROMPT TEMPLATE (please change to get Ambiguous/Inconsistent/Incomplete description by copying the prompt from the options above)
 TEMPLATE = """
 Based on the knowledge that a problem becomes inconsistent if some statements in the description show conflict, think step-by-step to rewrite the given coding problem description and make it inconsistent. Only output the modified problem description itself.
 
@@ -84,7 +131,7 @@ def generate_responses(model, formatted_data, jsonl_file_path):
                 jsonl_file.write(json.dumps(input_output_pair) + '\n')
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Python code from coding problem descriptions using Google Generative AI.")
+    parser = argparse.ArgumentParser(description="Generate appropriate response given prompt using Google Generative AI.")
     parser.add_argument('--api_key', type=str, required=True, help="API key for Google Generative AI.")
     parser.add_argument('--dir_path', type=str, help="Directory containing folders with coding problems.")
     parser.add_argument('--jsonl_file_path', type=str, help="Path to save the output JSONL file.")

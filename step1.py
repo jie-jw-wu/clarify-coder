@@ -14,6 +14,11 @@ You are given a coding problem description. Your task is to write the correspond
 Please provide the complete Python code below:
 """
 
+# Global variables for range of folders to process
+# Set as you wish, please uncomment line 53 to submit requests in smaller batches
+INITIAL_X = 1
+FINAL_X = 1000
+
 SAFETY_SETTINGS = [
     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -42,6 +47,7 @@ def configure_genai(api_key):
 def load_questions(dir_path):
     formatted_data = []
     for folder_path in tqdm(glob.glob(os.path.join(dir_path, '*')), desc="Processing Folders", unit="folder"):
+        # if INITIAL_X <= i <= FINAL_X:
         question_file_path = os.path.join(folder_path, "question.txt")
         if os.path.isfile(question_file_path):
             with open(question_file_path, 'r') as file:
@@ -66,11 +72,11 @@ def generate_responses(model, formatted_data):
                 output_data.append(input_output_pair)
             except Exception as e:
                 print(f"Error occurred for prompt {i} even after retrying: {e}")
-                input_output_pair = {'input': prompt, 'output': response.prompt_feedback}
+                input_output_pair = {'input': prompt, 'output': str(response.prompt_feedback)}
                 output_data.append(input_output_pair)
         except ValueError as e:
             print(f"Error occurred for prompt {i}: {e}")
-            input_output_pair = {'input': prompt, 'output': response.prompt_feedback}
+            input_output_pair = {'input': prompt, 'output': str(response.prompt_feedback)}
             output_data.append(input_output_pair)
     return output_data
 
@@ -79,10 +85,10 @@ def save_output_to_json(output_data, json_file_path):
         json.dump(output_data, json_file, indent=4)
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Python code from coding problem descriptions using Google Generative AI.")
+    parser = argparse.ArgumentParser(description="Generate appropriate response given prompt using Google Generative AI.")
     parser.add_argument('--api_key', type=str, required=True, help="API key for Google Generative AI.")
-    parser.add_argument('--dir_path', type=str, default="APPS/train", help="Directory containing folders with coding problems.")
-    parser.add_argument('--json_file_path', type=str, default="OG-Code_Gemini_zeroshot_APPStrain.json", help="Path to save the output JSON file.")
+    parser.add_argument('--dir_path', type=str, help="Directory containing folders with coding problems.")
+    parser.add_argument('--jsonl_file_path', type=str, help="Path to save the output JSONL file.")
     args = parser.parse_args()
 
     print("Phase 1: Loading questions")
@@ -91,13 +97,12 @@ def main():
     print("Phase 2: Configuring generative model")
     model = configure_genai(args.api_key)
 
-    print("Phase 3: Generating responses")
-    output_data = generate_responses(model, formatted_data)
+    print("Phase 3: Generating responses and saving to JSONL file")
+    generate_responses(model, formatted_data, args.jsonl_file_path)
+    # SAVING TO JSONL
+    # This format stores each data entry as a separate JSON object on a new line, making it easy to read and process using HF datasets library.
 
-    print("Phase 4: Saving output to JSON file")
-    save_output_to_json(output_data, args.json_file_path)
-
-    print(f"\nJSON file with input-output pairs saved at: {args.json_file_path}")
+    print(f"\nJSONL file with input-output pairs saved at: {args.jsonl_file_path}")
 
 if __name__ == "__main__":
     main()
