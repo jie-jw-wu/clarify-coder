@@ -65,11 +65,6 @@ Original Problem Description:
 Inconsistent Problem:
 """
 
-# Global variables for range of folders to process
-# Set as you wish, please uncomment line 53 to submit requests in smaller batches
-INITIAL_X = 1
-FINAL_X = 1000
-
 def configure_genai(api_key):
     genai.configure(api_key=api_key)
     safety_settings = [
@@ -97,7 +92,6 @@ def load_questions(dir_path):
     folder_paths = sorted(glob.glob(os.path.join(dir_path, '*')))
     
     for i, folder_path in enumerate(tqdm(folder_paths, desc="Processing Folders", unit="folder"), start=1):
-        # if INITIAL_X <= i <= FINAL_X:
         question_file_path = os.path.join(folder_path, "question.txt")
         if os.path.isfile(question_file_path):
             with open(question_file_path, 'r') as file:
