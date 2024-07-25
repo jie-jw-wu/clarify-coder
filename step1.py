@@ -14,11 +14,6 @@ You are given a coding problem description. Your task is to write the correspond
 Please provide the complete Python code below:
 """
 
-# Global variables for range of folders to process
-# Set as you wish, please uncomment line 53 to submit requests in smaller batches
-INITIAL_X = 1
-FINAL_X = 1000
-
 SAFETY_SETTINGS = [
     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -47,7 +42,6 @@ def configure_genai(api_key):
 def load_questions(dir_path):
     formatted_data = []
     for folder_path in tqdm(glob.glob(os.path.join(dir_path, '*')), desc="Processing Folders", unit="folder"):
-        # if INITIAL_X <= i <= FINAL_X:
         question_file_path = os.path.join(folder_path, "question.txt")
         if os.path.isfile(question_file_path):
             with open(question_file_path, 'r') as file:
