@@ -11,7 +11,7 @@ def process_jsonl_file(jsonl_file):
                 folder_name = str(index)
                 os.makedirs(folder_name, exist_ok=True)
                 
-                output_file_path = os.path.join(folder_name, 'modified_problem_question.txt')
+                output_file_path = os.path.join(folder_name, 'modified_question.txt')
                 with open(output_file_path, 'w') as output_file:
                     output_file.write(output_value)
 
