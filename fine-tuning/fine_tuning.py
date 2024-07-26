@@ -20,6 +20,8 @@ from peft import LoraConfig, get_peft_model
 # fine-tuning tutorial: 
 ## https://www.kaggle.com/code/lizhecheng/qlora-fine-tune-gpt-neox-20b
 ## https://colab.research.google.com/drive/1jCkpikz0J2o20FBQmYmAGdiKmJGOMo-o?usp=sharing#scrollTo=cg3fiQOvmI3Q
+## https://colab.research.google.com/github/peremartra/Large-Language-Model-Notebooks-Course/blob/main/5-Fine%20Tuning/LoRA_Tuning_PEFT.ipynb#scrollTo=_TAjrSWSe14q
+## https://huggingface.co/blog/peft
 
 def print_trainable_parameters(model):
     """
