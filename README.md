@@ -79,6 +79,9 @@ Modified_Problems
 #### Step 3
 
 - Generates clarifying questions and clarification score from the modified problems.
+- Clarification Score: A measure of how necessary it is to ask clarifying questions to complete the coding task. A score of 0 means no clarifying questions are needed, while a score of 1 means clarifying questions are absolutely necessary. Default value for the original (not modified) problem descriptions is 0.0.
+    - UPDATE: Not generating clarification score anymore.
+    - Will be tagging the question as Ambiguous/Inconsistent/Incomplete
 - The output from this is a JSONL file that contains input-output pairs, the input is the modified problem description and the output is the clarifying questions and the clarification score.
 
 #### Usage for Step 1, Step 2, Step 3
@@ -101,10 +104,10 @@ python script.py --api_key YOUR_API_KEY --dir_path path/to/your/directory --json
 
 - This python script combines the data generated from step 1 and step 3 to create the finetuned dataset with the following entries:
     - Original Problem: Code (10k entries)
-    - Ambiguous Problem: Clarifying Questions and Clarification Score (10K entries)
-    - Inconsistent Problem: Clarifying Questions and Clarification Score (10K entries)
-    - Incomplete Problem: Clarifying Questions and Clarification Score (10K entries)
-- Currently there will be three columns in this dataset (wtih scope to add more):
+    - Ambiguous Problem: Clarifying Questions (10K entries)
+    - Inconsistent Problem: Clarifying Questions (10K entries)
+    - Incomplete Problem: Clarifying Questions (10K entries)
+- Currently there will be 2 columns in this dataset (wtih scope to add more):
     - Problem Description: Either the original problem description from the dataset, or the modified problem description.
-    - Output: Either code (ground truth) or clarifying questions.
-    - Clarification Score: A measure of how necessary it is to ask clarifying questions to complete the coding task. A score of 0 means no clarifying questions are needed, while a score of 1 means clarifying questions are absolutely necessary. Default value for the original (not modified) problem descriptions is 0.0.
+    - Output: Either code (ground truth) or clarifying questions with tag of what kind of problem it is (Ambiguous/Incomplete/Inconsistent)
+    
