@@ -55,16 +55,33 @@ Incomplete Problem:
 
 '''
 
-# PROMPT TEMPLATE (please change to get Ambiguous/Inconsistent/Incomplete description by copying the prompt from the options above)
-TEMPLATE = """
+# Map prompt types to their respective templates
+PROMPT_TEMPLATES = {
+    "ambiguous": """
+Based on the knowledge that ambiguous problem descriptions can be created by introducing multiple valid interpretations or unspecified details, think step-by-step to rewrite the given coding problem description and make it ambiguous. Only output the modified problem description itself.
+
+Original Problem Description:
+{question}
+
+Ambiguous Problem:
+""",
+    "inconsistent": """
 Based on the knowledge that a problem becomes inconsistent if some statements in the description show conflict, think step-by-step to rewrite the given coding problem description and make it inconsistent. Only output the modified problem description itself.
 
 Original Problem Description:
 {question}
 
 Inconsistent Problem:
-"""
+""",
+    "incomplete": """
+Based on the knowledge that removing some of the key concepts and conditions that are crucial for solving the problem makes it incomplete, think step-by-step to rewrite the given coding problem description to make it incomplete. Only output the modified problem description itself.
 
+Original Problem Description:
+{question}
+
+Incomplete Problem:
+"""
+}
 def configure_genai(api_key):
     genai.configure(api_key=api_key)
     safety_settings = [
@@ -86,7 +103,7 @@ def configure_genai(api_key):
     )
     return model
 
-def load_questions(dir_path):
+def load_questions(dir_path, template):
     
     formatted_data = []
     folder_paths = sorted(glob.glob(os.path.join(dir_path, '*')))
@@ -96,7 +113,7 @@ def load_questions(dir_path):
         if os.path.isfile(question_file_path):
             with open(question_file_path, 'r') as file:
                 question_text = file.read().strip()
-                formatted_entry = TEMPLATE.format(question=question_text)
+                formatted_entry = template.format(question=question_text)
                 formatted_data.append(formatted_entry)
     
     return formatted_data
@@ -129,10 +146,19 @@ def main():
     parser.add_argument('--api_key', type=str, required=True, help="API key for Google Generative AI.")
     parser.add_argument('--dir_path', type=str, help="Directory containing folders with coding problems.")
     parser.add_argument('--jsonl_file_path', type=str, help="Path to save the output JSONL file.")
+    parser.add_argument('--type', type=str, choices=['ambiguous', 'inconsistent', 'incomplete'], required=True, help="Type of problem description to generate (ambiguous, inconsistent, incomplete).")
     args = parser.parse_args()
 
+    # Select the appropriate template based on the chosen type
+    template = PROMPT_TEMPLATES[args.type]
+
+    # Ensure the directory for the JSONL file path exists
+    jsonl_directory = os.path.dirname(args.jsonl_file_path)
+    if jsonl_directory and not os.path.exists(jsonl_directory):
+        os.makedirs(jsonl_directory)
+
     print("Phase 1: Loading questions")
-    formatted_data = load_questions(args.dir_path)
+    formatted_data = load_questions(args.dir_path, template)
 
     print("Phase 2: Configuring generative model")
     model = configure_genai(args.api_key)

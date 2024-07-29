@@ -8,94 +8,35 @@ from tqdm import tqdm
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
-'''
-PROMPT TEMPLATE TO GENERATE AMBIGUOUS PROBLEM
-
-## COPY FROM HERE ##
-
-You are given an ambiguous coding problem description. Your task is to assess the level of ambiguity and provide a clarification score as well as ask necessary clarifying questions to resolve the ambiguity.
-
-Definitions:
-
-Ambiguity: A problem statement is ambiguous if it includes multiple valid interpretations or has unspecified details.
-Clarification Score: A measure of how necessary it is to ask clarifying questions to complete the coding task. A score of 0 means no clarifying questions are needed, while a score of 1 means clarifying questions are absolutely necessary.
+# Map prompt types to their respective templates
+PROMPT_TEMPLATES = {
+    "ambiguous": """
+You are given an ambiguous coding problem description. Your task is to think step-by-step to assess the level of ambiguity and ask necessary clarifying questions to resolve the ambiguity. Please note that a problem statement is ambiguous if it includes multiple valid interpretations or has unspecified details.
 
 Ambiguous Coding Problem Description:
 {question}
 
-Output Format:
-
-Clarifying Questions: Ask clarifying questions that would help remove the ambiguity from the problem statement.
-Score: Provide a clarification score ranging from 0 to 1.
-
-## COPY TILL HERE ##
-'''
-
-'''
-PROMPT TEMPLATE TO GENERATE INCONSISTENT PROBLEM
-
-## COPY FROM HERE ##
-
-You are given an inconsistent coding problem description. Your task is to assess the level of inconsistency and provide a clarification score as well as ask necessary clarifying questions to resolve the inconsistency.
-
-Definitions:
-
-Inconsistency: A problem description becomes inconsistent if some statements in the description show conflict.
-Clarification Score: A measure of how necessary it is to ask clarifying questions to complete the coding task. A score of 0 means no clarifying questions are needed, while a score of 1 means clarifying questions are absolutely necessary.
+Please only output the clarifying questions.
+""",
+    "inconsistent": """
+You are given an inconsistent coding problem description. Your task is to think step-by-step to assess the level of inconsistency and ask necessary clarifying questions to resolve the inconsistency. Please note that a problem description becomes inconsistent if some statements in the description show conflict.
 
 Inconsistent Coding Problem Description:
 {question}
 
-Output Format:
-
-Clarifying Questions: Ask clarifying questions that would help remove the inconsistency from the problem statement.
-Score: Provide a clarification score ranging from 0 to 1.
-
-## COPY TILL HERE ##
-
-'''
-
-'''
-PROMPT TEMPLATE TO GENERATE INCOMPLETE PROBLEM
-
-## COPY FROM HERE ##
-
-You are given an incomplete coding problem description. Your task is to assess the level of incompleteness and provide a clarification score as well as ask necessary clarifying questions to resolve the incompleteness.
-
-Definitions:
-
-Incompleteness: Absence of some of the key concepts and conditions that are crucial for solving the problem makes it incomplete.
-Clarification Score: A measure of how necessary it is to ask clarifying questions to complete the coding task. A score of 0 means no clarifying questions are needed, while a score of 1 means clarifying questions are absolutely necessary.
+Please only output the clarifying questions.
+""",
+    "incomplete": """
+You are given an incomplete coding problem description. Your task is to think step-by-step to assess the level of incompleteness and ask necessary clarifying questions to resolve the incompleteness. Please nore that absence of some of the key concepts and conditions that are crucial for solving the problem makes it incomplete.
 
 Incomplete Coding Problem Description:
 {question}
 
 Output Format:
 
-Clarifying Questions: Ask clarifying questions that would help remove the incompleteness from the problem statement.
-Score: Provide a clarification score ranging from 0 to 1.
-
-## COPY TILL HERE ##
-
-'''
-
-# PROMPT TEMPLATE (please change to get Ambiguous/Inconsistent/Incomplete description by copying the prompt from the options above)
-TEMPLATE = """
-You are given an ambiguous coding problem description. Your task is to assess the level of ambiguity and provide a clarification score as well as ask necessary clarifying questions to resolve the ambiguity.
-
-Definitions:
-
-Ambiguity: A problem statement is ambiguous if it includes multiple valid interpretations or has unspecified details.
-Clarification Score: A measure of how necessary it is to ask clarifying questions to complete the coding task. A score of 0 means no clarifying questions are needed, while a score of 1 means clarifying questions are absolutely necessary.
-
-Ambiguous Coding Problem Description:
-{question}
-
-Output Format:
-
-Clarifying Questions: Ask clarifying questions that would help remove the ambiguity from the problem statement.
-Score: Provide a clarification score ranging from 0 to 1.
+Please only output the clarifying questions.
 """
+}
 
 def configure_genai(api_key):
     genai.configure(api_key=api_key)
@@ -118,7 +59,7 @@ def configure_genai(api_key):
     )
     return model
 
-def load_questions(dir_path):
+def load_questions(dir_path, template):
     
     formatted_data = []
     folder_paths = sorted(glob.glob(os.path.join(dir_path, '*')))
@@ -128,7 +69,7 @@ def load_questions(dir_path):
         if os.path.isfile(question_file_path):
             with open(question_file_path, 'r') as file:
                 question_text = file.read().strip()
-                formatted_entry = TEMPLATE.format(question=question_text)
+                formatted_entry = template.format(question=question_text)
                 formatted_data.append(formatted_entry)
     
     return formatted_data
@@ -161,10 +102,19 @@ def main():
     parser.add_argument('--api_key', type=str, required=True, help="API key for Google Generative AI.")
     parser.add_argument('--dir_path', type=str, help="Directory containing folders with coding problems.")
     parser.add_argument('--jsonl_file_path', type=str, help="Path to save the output JSONL file.")
+    parser.add_argument('--type', type=str, choices=['ambiguous', 'inconsistent', 'incomplete'], required=True, help="Type of problem description to generate (ambiguous, inconsistent, incomplete).")
     args = parser.parse_args()
 
+    # Select the appropriate template based on the chosen type
+    template = PROMPT_TEMPLATES[args.type]
+
+    # Ensure the directory for the JSONL file path exists
+    jsonl_directory = os.path.dirname(args.jsonl_file_path)
+    if jsonl_directory and not os.path.exists(jsonl_directory):
+        os.makedirs(jsonl_directory)
+
     print("Phase 1: Loading questions")
-    formatted_data = load_questions(args.dir_path)
+    formatted_data = load_questions(args.dir_path, template)
 
     print("Phase 2: Configuring generative model")
     model = configure_genai(args.api_key)
