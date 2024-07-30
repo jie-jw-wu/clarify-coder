@@ -54,7 +54,7 @@ args = parser.parse_args()
 
 #data = load_dataset("Abirate/english_quotes")
 
-data = datasets.load_from_disk(args.dataset_path)
+data = load_from_disk(args.dataset_path)
 data = data.map(lambda samples: tokenizer(samples['quote']), batched=True)
 
 if args.use_int8:
