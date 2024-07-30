@@ -14,7 +14,7 @@ from nltk.corpus import stopwords
 
 import torch
 from transformers import LlamaForSequenceClassification, LlamaTokenizer, Trainer, TrainingArguments
-from datasets import load_dataset
+import datasets
 from peft import LoraConfig, get_peft_model
 
 # fine-tuning tutorial: 
@@ -54,7 +54,7 @@ args = parser.parse_args()
 
 #data = load_dataset("Abirate/english_quotes")
 
-data = load_from_disk(args.dataset_path)
+data = datasets.load_from_disk(args.dataset_path)
 data = data.map(lambda samples: tokenizer(samples['quote']), batched=True)
 
 if args.use_int8:
