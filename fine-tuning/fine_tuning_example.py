@@ -39,9 +39,9 @@ def print_trainable_parameters(model):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model_name_or_path', type=str, help='Path to the model')
+parser.add_argument('--model_name_or_path', type=str, help='Path to the model',required=True)
 parser.add_argument('--finetune_method', type=str, default='lora', help='fine-tuning method')
-parser.add_argument("-m","--model",help="LLM",type=str,required=True)
+parser.add_argument("-m","--model",help="LLM",type=str)
 parser.add_argument('--use_int8', action='store_true', help='whether to use int8 quantization')
 parser.add_argument('--use_fp16', action='store_true', help='whether to use fp16 precision')
 parser.add_argument("--dataset_path",help="dataset_path",type=str,required=True)
