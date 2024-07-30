@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --time=60:00:00
-#SBATCH --account=def-fard
-#SBATCH --mem-per-cpu=2G
+#SBATCH --time=<choose in hh:mm:ss format>
+#SBATCH --account=<your_account>
+#SBATCH --mem-per-cpu=<doesnt require much, 1G should suffice>
 #SBATCH --ntasks=1
 
 source GeminiTest1/bin/activate # to activate environment
