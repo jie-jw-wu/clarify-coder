@@ -10,10 +10,9 @@ import subprocess
 import argparse
 import random
 import string
-from nltk.corpus import stopwords
 
 import torch
-from transformers import LlamaForSequenceClassification, LlamaTokenizer, Trainer, TrainingArguments
+from transformers import Trainer, TrainingArguments, AutoModelForCausalLM, AutoTokenizer, DataCollatorForLanguageModeling
 import datasets
 from peft import LoraConfig, get_peft_model
 
@@ -56,6 +55,9 @@ args = parser.parse_args()
 
 data = datasets.load_from_disk(args.dataset_path)
 data = data.map(lambda samples: tokenizer(samples['quote']), batched=True)
+
+HF_HOME = "/scratch/jie"
+offload_folder = "offload_folder"
 
 if args.use_int8:
     print("**********************************")
@@ -132,10 +134,10 @@ model = get_peft_model(model, lora_config)
 print_trainable_parameters(model)
 
 # Define the Trainer
-trainer = transformers.Trainer(
+trainer = Trainer(
     model=model, 
     train_dataset=data['train'],
-    args=transformers.TrainingArguments(
+    args=TrainingArguments(
         per_device_train_batch_size=4, 
         gradient_accumulation_steps=4,
         warmup_steps=100, 
@@ -145,7 +147,7 @@ trainer = transformers.Trainer(
         logging_steps=1, 
         output_dir='outputs'
     ),
-    data_collator=transformers.DataCollatorForLanguageModeling(tokenizer, mlm=False)
+    data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False)
 )
 model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
 trainer.train()
