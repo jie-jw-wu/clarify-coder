@@ -8,53 +8,6 @@ from tqdm import tqdm
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
-'''
-PROMPT TEMPLATE TO GENERATE AMBIGUOUS PROBLEM
-
-## COPY FROM HERE ##
-
-Based on the knowledge that ambiguous problem descriptions can be created by introducing multiple valid interpretations or unspecified details, think step-by-step to rewrite the given coding problem description and make it ambiguous. Only output the modified problem description itself.
-
-Original Problem Description:
-{question}
-
-Ambiguous Problem:
-
-## COPY TILL HERE ##
-'''
-
-'''
-PROMPT TEMPLATE TO GENERATE INCONSISTENT PROBLEM
-
-## COPY FROM HERE ##
-
-Based on the knowledge that a problem becomes inconsistent if some statements in the description show conflict, think step-by-step to rewrite the given coding problem description and make it inconsistent. Only output the modified problem description itself.
-
-Original Problem Description:
-{question}
-
-Inconsistent Problem:
-
-## COPY TILL HERE ##
-
-'''
-
-'''
-PROMPT TEMPLATE TO GENERATE INCOMPLETE PROBLEM
-
-## COPY FROM HERE ##
-
-Based on the knowledge that removing some of the key concepts and conditions that are crucial for solving the problem makes it incomplete, think step-by-step to rewrite the given coding problem description to make it incomplete. Only output the modified problem description itself.
-
-Original Problem Description:
-{question}
-
-Incomplete Problem:
-
-## COPY TILL HERE ##
-
-'''
-
 # Map prompt types to their respective templates
 PROMPT_TEMPLATES = {
     "ambiguous": """
@@ -118,13 +71,62 @@ def load_questions(dir_path, template):
     
     return formatted_data
 
-def generate_responses(model, formatted_data, jsonl_file_path):
+'''
+ERROR HANDLING
+read the generated JSONL file, 
+check for entries with an empty output, 
+and send those inputs as questions to the model to generate new outputs
+'''
+
+def update_empty_responses(model, jsonl_file_path):
+    # Read the existing jsonl file
+    with open(jsonl_file_path, 'r') as jsonl_file:
+        lines = jsonl_file.readlines()
+    
+    updated_lines = []
+    
+    for line in tqdm(lines, desc="Updating empty responses", unit="entry"):
+        entry = json.loads(line)
+        if entry['output'] == "":
+            prompt = entry['input']
+            try:
+                response = model.generate_content(prompt)
+                entry['output'] = response.text
+            except ResourceExhausted:
+                print(f"ResourceExhausted error occurred for prompt. Retrying after a delay...")
+                time.sleep(60)
+                try:
+                    response = model.generate_content(prompt)
+                    entry['output'] = response.text
+                except Exception as e:
+                    print(f"Error occurred even after retrying: {e}")
+                    entry['output'] = str(response.prompt_feedback)
+            except ValueError as e:
+                print(f"Error occurred: {e}")
+                entry['output'] = str(response.prompt_feedback)
+        
+        updated_lines.append(json.dumps(entry))
+    
+    # Write the updated entries back to the jsonl file
+    with open(jsonl_file_path, 'w') as jsonl_file:
+        for line in updated_lines:
+            jsonl_file.write(line + '\n')
+
+def generate_responses(model, formatted_data, jsonl_file_path, checkpoint_file):
+    start_index = 0
+    if os.path.exists(checkpoint_file):
+        with open(checkpoint_file, 'r') as file:
+            start_index = int(file.read().strip())
+    
     with open(jsonl_file_path, 'a') as jsonl_file:
-        for i, prompt in enumerate(tqdm(formatted_data, desc="Generating Responses", unit="entry"), start=1):
+        for i in tqdm(range(start_index, len(formatted_data)), desc="Generating Responses", unit="entry"):
+            prompt = formatted_data[i]
             try:
                 response = model.generate_content(prompt)
                 input_output_pair = {'input': prompt, 'output': response.text}
                 jsonl_file.write(json.dumps(input_output_pair) + '\n')
+                with open(checkpoint_file, 'w') as file:
+                    file.write(str(i + 1))
             except ResourceExhausted:
                 print(f"ResourceExhausted error occurred for prompt {i}. Retrying after a delay...")
                 time.sleep(60)
@@ -132,6 +134,8 @@ def generate_responses(model, formatted_data, jsonl_file_path):
                     response = model.generate_content(prompt)
                     input_output_pair = {'input': prompt, 'output': response.text}
                     jsonl_file.write(json.dumps(input_output_pair) + '\n')
+                    with open(checkpoint_file, 'w') as file:
+                        file.write(str(i + 1))
                 except Exception as e:
                     print(f"Error occurred for prompt {i} even after retrying: {e}")
                     input_output_pair = {'input': prompt, 'output': str(response.prompt_feedback)}
@@ -140,12 +144,12 @@ def generate_responses(model, formatted_data, jsonl_file_path):
                 print(f"Error occurred for prompt {i}: {e}")
                 input_output_pair = {'input': prompt, 'output': str(response.prompt_feedback)}
                 jsonl_file.write(json.dumps(input_output_pair) + '\n')
-
 def main():
     parser = argparse.ArgumentParser(description="Generate appropriate response given prompt using Google Generative AI.")
     parser.add_argument('--api_key', type=str, required=True, help="API key for Google Generative AI.")
     parser.add_argument('--dir_path', type=str, help="Directory containing folders with coding problems.")
     parser.add_argument('--jsonl_file_path', type=str, help="Path to save the output JSONL file.")
+    parser.add_argument('--checkpoint_file', type=str, default="modified_checkpoint.txt", help="File to save the last processed index.")
     parser.add_argument('--type', type=str, choices=['ambiguous', 'inconsistent', 'incomplete'], required=True, help="Type of problem description to generate (ambiguous, inconsistent, incomplete).")
     args = parser.parse_args()
 
@@ -164,9 +168,12 @@ def main():
     model = configure_genai(args.api_key)
 
     print("Phase 3: Generating responses and saving to JSONL file")
-    generate_responses(model, formatted_data, args.jsonl_file_path)
+    generate_responses(model, formatted_data, args.jsonl_file_path, args.checkpoint_file)
     # SAVING TO JSONL
     # This format stores each data entry as a separate JSON object on a new line, making it easy to read and process using HF datasets library.
+
+    print("Error Handling: Updating empty responses")
+    update_empty_responses(model, args.jsonl_file_path)
 
     print(f"\nJSONL file with input-output pairs saved at: {args.jsonl_file_path}")
 
