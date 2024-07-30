@@ -40,13 +40,6 @@ parser.add_argument("--finetuned_model_path",help="finetuned_model_path",type=st
 
 args = parser.parse_args()
 
-# TODO: Load the dataset
-# https://github.com/huggingface/datasets/issues/824#issuecomment-758358089
-
-#data = load_dataset("Abirate/english_quotes")
-
-data = load_from_disk(args.dataset_path)
-data = data.map(tokenize_function, batched=True)
 
 HF_HOME = "/scratch/jie"
 offload_folder = "offload_folder"
@@ -94,6 +87,11 @@ tokenizer = AutoTokenizer.from_pretrained(
     device_map='auto',
 )
 
+# TODO: Load the dataset
+# https://github.com/huggingface/datasets/issues/824#issuecomment-758358089
+# data = load_dataset("Abirate/english_quotes")
+data = load_from_disk(args.dataset_path)
+data = data.map(tokenize_function, batched=True)
 
 ### Post-processing on the model
 # Finally, we need to apply some post-processing on the 8-bit model to enable training, let's freeze all our layers, and cast the layer-norm in `float32` for stability. We also cast the output of the last layer in `float32` for the same reasons.
