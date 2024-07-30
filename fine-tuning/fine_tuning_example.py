@@ -19,7 +19,8 @@ def print_trainable_parameters(model):
     """
     trainable_params = 0
     all_param = 0
-    for _, param in model.named_parameters():
+    for name, param in model.named_parameters():
+        # print(name, param.device)
         all_param += param.numel()
         if param.requires_grad:
             trainable_params += param.numel()
@@ -75,11 +76,11 @@ else:
     model = AutoModelForCausalLM.from_pretrained(
         args.model_name_or_path,
         device_map="auto",
-        cache_dir=HF_HOME,
-        #offload_folder=offload_folder,   
-        local_files_only=True,              
-    )
-
+        load_in_8bit=True,  
+        local_files_only=True,          
+        #cache_dir=HF_HOME,
+        #offload_folder=offload_folder,      
+        )
 
 # configure tokenizer
 tokenizer = AutoTokenizer.from_pretrained(
@@ -143,13 +144,10 @@ trainer = Trainer(
 model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
 trainer.train()
 
-model.save_pretrained(args.finetuned_model_path)
+#model.save_pretrained(args.finetuned_model_path)
 
 # Inference
 batch = tokenizer("Two things are infinite: ", return_tensors='pt').to('cuda') 
-
-#device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-model = model.to('cuda')
 
 with torch.cuda.amp.autocast():
   output_tokens = model.generate(**batch, max_new_tokens=50)
