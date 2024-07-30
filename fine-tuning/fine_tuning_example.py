@@ -146,7 +146,10 @@ trainer.train()
 model.save_pretrained(args.finetuned_model_path)
 
 # Inference
-batch = tokenizer("Two things are infinite: ", return_tensors='pt')
+batch = tokenizer("Two things are infinite: ", return_tensors='pt').to('cuda') 
+
+#device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+model = model.to('cuda')
 
 with torch.cuda.amp.autocast():
   output_tokens = model.generate(**batch, max_new_tokens=50)
