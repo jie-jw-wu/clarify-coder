@@ -1,19 +1,9 @@
-import math
-import time
 
-import nltk
-import openai
-import re
-import os
-import json
-import subprocess
 import argparse
-import random
-import string
 
 import torch
-import transformers 
-import datasets
+from transformers import Trainer, TrainingArguments, AutoModelForCausalLM, AutoTokenizer, DataCollatorForLanguageModeling
+from datasets import load_from_disk
 from peft import LoraConfig, get_peft_model
 
 # fine-tuning tutorial: 
@@ -36,6 +26,8 @@ def print_trainable_parameters(model):
         f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param}"
     )
 
+def tokenize_function(samples):
+    return tokenizer(samples['quote'])  #, padding=True, truncation=True, max_length=128)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model_name_or_path', type=str, help='Path to the model',required=True)
@@ -53,8 +45,8 @@ args = parser.parse_args()
 
 #data = load_dataset("Abirate/english_quotes")
 
-data = datasets.load_from_disk(args.dataset_path)
-data = data.map(lambda samples: tokenizer(samples['quote']), batched=True)
+data = load_from_disk(args.dataset_path)
+data = data.map(tokenize_function, batched=True)
 
 HF_HOME = "/scratch/jie"
 offload_folder = "offload_folder"
