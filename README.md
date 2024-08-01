@@ -40,14 +40,14 @@ APPS
     - Safety settings set to “BLOCK_NONE”.
 ### Running the Data Generation Pipeline in one-go
 - Clone the repository and navigate to the `clarity-aware-code` directory.
-- <Will need a requirements file to facilitate setting up of the environment>
+- Ensure that your dataset folder is in the same directory as the python files as well as the batch script.
 - To run the entire process sequentially, you can use the following batch script (also included in the repository titled `combined_script.sh`):
 ```
-source GeminiTest1/bin/activate # activate environment
+#!/bin/bash
 
-API_KEY="<ENTER_YOUR_GEMINI_API_KEY>"
+API_KEY="<ENTER_GEMINI_API_KEY>"
 INPUT="APPS/train"
-TYPE="ambiguous" # choose either "ambiguous", "inconsistent" or "incomplete"
+TYPE="ambiguous"  # Choose either "ambiguous", "inconsistent" or "incomplete"
 OUTPUT1="AMBIGUOUS/train/modified_ambiguous_train.jsonl"
 MODIFY_PRBLM="step2.py"
 FRMT_CNVR="convert_JSONL_2_txt.py"
@@ -55,9 +55,32 @@ CLARIFY="step3.py"
 INPUT2="AMBIGUOUS/train"
 OUTPUT2="AMBIGUOUS/train/clarity_ambiguous_train.jsonl"
 
+# Ensure necessary directories exist
+mkdir -p "$(dirname "$OUTPUT1")"
+mkdir -p "$(dirname "$OUTPUT2")"
+
+# Generate modified problems from the original dataset
 python3 $MODIFY_PRBLM --api_key $API_KEY --dir_path $INPUT --jsonl_file_path $OUTPUT1 --type $TYPE
+
+# Convert the JSONL file into a format easily processed by the step3 script
 python3 $FRMT_CNVR $OUTPUT1 $INPUT2
+
+# Generate clarifying questions for the modified problems
 python3 $CLARIFY --api_key $API_KEY --dir_path $INPUT2 --jsonl_file_path $OUTPUT2 --type $TYPE
+
+```
+- Save this script to a file, e.g., combined_script.sh.
+- Make the script executable:
+```
+chmod +x combined_script.sh
+```
+- Run the script:
+```
+./combined_script.sh
+```
+- Ensure Python is installed on your local system and that the required Python packages are available globally. If you need to install specific packages, you can do so using pip:
+```
+pip install <package_name>
 ```
 - **Recommendation**: Due to the possibility of errors and interruptions, it is advisable to perform the process step-by-step, especially for generating large datasets. The checkpoint mechanism helps in continuing the process without losing progress while the `update_empty_responses` function  reads the generated JSONL output and sends queries to the model for those where the output is empty.
 
