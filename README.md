@@ -127,3 +127,10 @@ python3 step3.py --api_key <API_KEY> --dir_path AMBIGUOUS/train --jsonl_file_pat
     - <ADD HOW TO USE>
     - Internal Errors: If an error occurs and generation stops (e.g., 500: An Internal Error has Occurred), a checkpoint.txt file is used to track progress. The script checks this file upon starting and resumes from the last successful index.
     - <ADD HOW TO USE>
+
+#### Step 4
+
+- Generates the final file for finetuning.
+- Please note that for now, we used the ctrl-H feature of our editor to remove the prompt template from our files.
+- The step4 file creates the final "finetuning_data.jsonl" by combining and shuffling data from multiple different input files, while also adding another attribute "type" to our finetuning data, if not already present. 
+- We aim to add more attributes in future experiments using the script. 
