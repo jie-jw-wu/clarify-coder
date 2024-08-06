@@ -9,6 +9,7 @@ FRMT_CNVR="convert_JSONL_2_txt.py"
 CLARIFY="step3.py"
 INPUT2="AMBIGUOUS/train"
 OUTPUT2="AMBIGUOUS/train/clarity_ambiguous_train.jsonl"
+FORMATTER="step4.py"
 
 # Ensure necessary directories exist
 mkdir -p "$(dirname "$OUTPUT1")"
@@ -22,3 +23,6 @@ python3 $FRMT_CNVR $OUTPUT1 $INPUT2
 
 # Generate clarifying questions for the modified problems
 python3 $CLARIFY --api_key $API_KEY --dir_path $INPUT2 --jsonl_file_path $OUTPUT2 --type $TYPE
+
+# Generate final finetuning data file
+python3 $FORMATTER $OUTPUT2 $TYPE
