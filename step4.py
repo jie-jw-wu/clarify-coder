@@ -47,5 +47,3 @@ if __name__ == "__main__":
     
     # Call the function to add the "type" attribute and shuffle data
     add_type_attribute(args.input_file, output_file_path, args.type_value)
-    
-    add_type_attribute(input_file_path, output_file_path, type_value)
