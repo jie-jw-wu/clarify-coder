@@ -1,11 +1,18 @@
 
 import argparse
 import os
+import sys
 import torch
 import torch.nn as nn
-from transformers import Trainer, TrainingArguments, AutoModelForCausalLM, AutoTokenizer, DataCollatorForLanguageModeling
+from transformers import Trainer, TrainingArguments, AutoModelForCausalLM, AutoTokenizer, DataCollatorForLanguageModeling, DataCollatorForSeq2Seq
 from datasets import load_from_disk, load_dataset
-from peft import LoraConfig, get_peft_model
+from peft import (
+    LoraConfig,
+    get_peft_model,
+    get_peft_model_state_dict,
+    prepare_model_for_kbit_training,
+    set_peft_model_state_dict,
+)
 from sklearn.model_selection import train_test_split
 
 # fine-tuning tutorial: 
@@ -39,10 +46,23 @@ def tokenize_function(samples):
 
 def tokenize_function2(samples):
     print(samples)
-    concatenated_text = samples['problem'] + samples['answer']
     
     # Return the concatenated text in a dict format
     return {'concatenated_text': concatenated_text}
+
+def tokenize(samples):
+    concatenated_text = samples['problem'] + samples['answer']
+    result = tokenizer(
+        concatenated_text,
+        truncation=True,
+        max_length=512,
+        padding=False,
+        return_tensors=None,
+    )
+
+    # "self-supervised learning" means the labels are also the inputs:
+    result["labels"] = result["input_ids"].copy()
+    return result
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model_name_or_path', type=str, help='Path to the model',required=True)
@@ -112,12 +132,15 @@ tokenizer = AutoTokenizer.from_pretrained(
 )
 
 #tokenizer.pad_token = tokenizer.eos_token
-tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+tokenizer.add_eos_token = True
+tokenizer.pad_token_id = 0
+tokenizer.padding_side = "left"
+
 # TODO: Load the dataset
 # https://github.com/huggingface/datasets/issues/824#issuecomment-758358089
 # data = load_dataset("Abirate/english_quotes")
 data = load_dataset('json', data_files=args.dataset_path)
-tokenized_data = data.map(tokenize_function, batched=True)
+tokenized_data = data.map(tokenize)
 #data = data.map(tokenize_function, batched=True, batch_size=8)
 
 # Split the dataset into training and validation sets (80% train, 20% validate)
@@ -136,60 +159,95 @@ print(train_dataset[0])
 print(val_dataset[0])
 
 
-### Post-processing on the model
-# Finally, we need to apply some post-processing on the 8-bit model to enable training, let's freeze all our layers, and cast the layer-norm in `float32` for stability. We also cast the output of the last layer in `float32` for the same reasons.
-for param in model.parameters():
-  param.requires_grad = False  # freeze the model - train adapters later
-  if param.ndim == 1:
-    # cast the small parameters (e.g. layernorm) to fp32 for stability
-    param.data = param.data.to(torch.float32)
+model.train() # put model back into training mode
+model = prepare_model_for_kbit_training(model)
 
-model.gradient_checkpointing_enable()  # reduce number of stored activations
-model.enable_input_require_grads()
-
-class CastOutputToFloat(nn.Sequential):
-  def forward(self, x): return super().forward(x).to(torch.float32)
-model.lm_head = CastOutputToFloat(model.lm_head)
-
-
-# Define LoRA configuration
-lora_config = LoraConfig(
+config = LoraConfig(
     r=16,
-    lora_alpha=32,
-    target_modules=["q_proj", "v_proj"],
+    lora_alpha=16,
+    target_modules=[
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+],
     lora_dropout=0.05,
     bias="none",
-    task_type="CAUSAL_LM"
+    task_type="CAUSAL_LM",
 )
+model = get_peft_model(model, config)
 
-# Apply LoRA to the model
-model = get_peft_model(model, lora_config)
+resume_from_checkpoint = "" # set this to the adapter_model.bin file you want to resume from
+
+if resume_from_checkpoint:
+    if os.path.exists(resume_from_checkpoint):
+        print(f"Restarting from {resume_from_checkpoint}")
+        adapters_weights = torch.load(resume_from_checkpoint)
+        set_peft_model_state_dict(model, adapters_weights)
+    else:
+        print(f"Checkpoint {resume_from_checkpoint} not found")
+
+if torch.cuda.device_count() > 1:
+    # keeps Trainer from trying its own DataParallelism when more than 1 gpu is available
+    model.is_parallelizable = True
+    model.model_parallel = True
+
+
 print_trainable_parameters(model)
 
 # Define the Trainer
-trainer = Trainer(
-    model=model, 
-    train_dataset=data['train'],#train_dataset,
-    args=TrainingArguments(
-        per_device_train_batch_size=4, 
-        gradient_accumulation_steps=4,
-        warmup_steps=100, 
-        max_steps=200, 
-        learning_rate=2e-4, 
+batch_size = 128
+per_device_train_batch_size = 32
+gradient_accumulation_steps = batch_size // per_device_train_batch_size
+output_dir = "code-llama-fine-tuned-v1"
+
+training_args = TrainingArguments(
+        per_device_train_batch_size=per_device_train_batch_size,
+        gradient_accumulation_steps=gradient_accumulation_steps,
+        warmup_steps=100,
+        max_steps=400,
+        learning_rate=3e-4,
         fp16=True,
-        logging_steps=1, 
-        output_dir='outputs'
-    ),
-    data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
+        logging_steps=10,
+        optim="adamw_torch",
+        evaluation_strategy="steps", # if val_set_size > 0 else "no",
+        save_strategy="steps",
+        eval_steps=20,
+        save_steps=20,
+        output_dir=output_dir,
+        # save_total_limit=3,
+        load_best_model_at_end=False,
+        # ddp_find_unused_parameters=False if ddp else None,
+        group_by_length=True, # group sequences of roughly the same length together to speed up training
+        report_to="none", # if use_wandb else "none",
+        run_name=None, # if use_wandb else None,
+        remove_unused_columns=True,
+    )
+
+trainer = Trainer(
+    model=model,
+    train_dataset=train_dataset,
     #eval_dataset=val_dataset,
+    args=training_args,
+    data_collator=DataCollatorForSeq2Seq(
+        tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
+    ),
 )
-model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
-# TODO: train only for answer part (not question part)
+
+model.config.use_cache = False
+
+old_state_dict = model.state_dict
+model.state_dict = (lambda self, *_, **__: get_peft_model_state_dict(self, old_state_dict())).__get__(
+    model, type(model)
+)
+if torch.__version__ >= "2" and sys.platform != "win32":
+    print("compiling the model")
+    model = torch.compile(model)
 trainer.train()
 
 # Evaluate the model
-results = trainer.evaluate()
-print(results)
+#results = trainer.evaluate()
+#print(results)
 
 model.save_pretrained(args.finetuned_model_path)
 
