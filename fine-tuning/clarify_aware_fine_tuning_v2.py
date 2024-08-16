@@ -21,6 +21,7 @@ from sklearn.model_selection import train_test_split
 ## https://colab.research.google.com/github/peremartra/Large-Language-Model-Notebooks-Course/blob/main/5-Fine%20Tuning/LoRA_Tuning_PEFT.ipynb#scrollTo=_TAjrSWSe14q
 ## https://colab.research.google.com/drive/14xo6sj4dARk8lXZbOifHEn1f_70qNAwy?usp=sharing
 ## https://huggingface.co/blog/peft
+## https://github.com/ragntune/code-llama-finetune/tree/main?tab=readme-ov-file
 def merge_columns(example):
     example["prediction"] = example["quote"] + " ->: " + str(example["tags"])
     return example
@@ -72,6 +73,7 @@ parser.add_argument('--use_int8', action='store_true', help='whether to use int8
 parser.add_argument('--use_fp16', action='store_true', help='whether to use fp16 precision')
 parser.add_argument("--dataset_path",help="dataset_path",type=str,required=True)
 parser.add_argument("--finetuned_model_path",help="finetuned_model_path",type=str,required=True)
+parser.add_argument('--checkpoint', type=str, default="", help='checkpoint file')
 
 args = parser.parse_args()
 
@@ -98,7 +100,8 @@ if args.use_int8:
         device_map="auto",
         cache_dir=HF_HOME,
         offload_folder=offload_folder, 
-        local_files_only=True,     
+        local_files_only=True,
+        torch_dtype=torch.float16,
     )
 # if specified, use fp16 precision
 elif args.use_fp16:
@@ -177,7 +180,7 @@ config = LoraConfig(
 )
 model = get_peft_model(model, config)
 
-resume_from_checkpoint = "" # set this to the adapter_model.bin file you want to resume from
+resume_from_checkpoint = args.checkpoint # set this to the adapter_model.bin file you want to resume from
 
 if resume_from_checkpoint:
     if os.path.exists(resume_from_checkpoint):
@@ -202,6 +205,8 @@ gradient_accumulation_steps = batch_size // per_device_train_batch_size
 output_dir = "code-llama-fine-tuned-v1"
 
 training_args = TrainingArguments(
+        #per_device_train_batch_size=4,
+        #gradient_accumulation_steps=4,
         per_device_train_batch_size=per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
         warmup_steps=100,
@@ -227,7 +232,7 @@ training_args = TrainingArguments(
 trainer = Trainer(
     model=model,
     train_dataset=train_dataset,
-    #eval_dataset=val_dataset,
+    eval_dataset=val_dataset,
     args=training_args,
     data_collator=DataCollatorForSeq2Seq(
         tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
@@ -246,8 +251,8 @@ if torch.__version__ >= "2" and sys.platform != "win32":
 trainer.train()
 
 # Evaluate the model
-#results = trainer.evaluate()
-#print(results)
+results = trainer.evaluate()
+print(results)
 
 model.save_pretrained(args.finetuned_model_path)
 
