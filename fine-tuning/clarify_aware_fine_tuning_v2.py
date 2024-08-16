@@ -74,6 +74,7 @@ parser.add_argument('--use_fp16', action='store_true', help='whether to use fp16
 parser.add_argument("--dataset_path",help="dataset_path",type=str,required=True)
 parser.add_argument("--finetuned_model_path",help="finetuned_model_path",type=str,required=True)
 parser.add_argument('--checkpoint', type=str, default="", help='checkpoint file')
+parser.add_argument("--output_dir",type=str,required=True)
 
 args = parser.parse_args()
 
@@ -202,23 +203,23 @@ print_trainable_parameters(model)
 batch_size = 128
 per_device_train_batch_size = 32
 gradient_accumulation_steps = batch_size // per_device_train_batch_size
-output_dir = "code-llama-fine-tuned-v1"
+output_dir = args.output_dir #"code-llama-fine-tuned-v1"
 
 training_args = TrainingArguments(
         #per_device_train_batch_size=4,
         #gradient_accumulation_steps=4,
-        per_device_train_batch_size=per_device_train_batch_size,
+        per_device_train_batch_size=4,#per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
         warmup_steps=100,
         max_steps=400,
-        learning_rate=3e-4,
+        learning_rate=5e-4,
         fp16=True,
         logging_steps=10,
         optim="adamw_torch",
         evaluation_strategy="steps", # if val_set_size > 0 else "no",
         save_strategy="steps",
-        eval_steps=20,
-        save_steps=20,
+        eval_steps=40,
+        save_steps=40,
         output_dir=output_dir,
         # save_total_limit=3,
         load_best_model_at_end=False,
