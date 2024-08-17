@@ -7,6 +7,8 @@ import torch.nn as nn
 from transformers import Trainer, TrainingArguments, AutoModelForCausalLM, AutoTokenizer, DataCollatorForLanguageModeling, DataCollatorForSeq2Seq
 from datasets import load_from_disk, load_dataset
 from peft import (
+    PeftModel,
+    PeftConfig,
     LoraConfig,
     get_peft_model,
     get_peft_model_state_dict,
@@ -14,6 +16,7 @@ from peft import (
     set_peft_model_state_dict,
 )
 from sklearn.model_selection import train_test_split
+from safetensors.torch import load_file
 
 # fine-tuning tutorial: 
 ## https://www.kaggle.com/code/lizhecheng/qlora-fine-tune-gpt-neox-20b
@@ -63,6 +66,33 @@ def tokenize(samples):
 
     # "self-supervised learning" means the labels are also the inputs:
     result["labels"] = result["input_ids"].copy()
+    return result
+
+def tokenize_answer_only(samples):
+    # Tokenize the concatenated text but focus on the answer part for loss calculation
+    concatenated_text = samples['problem'] + samples['answer']
+    result = tokenizer(
+        concatenated_text,
+        truncation=True,
+        max_length=512,
+        padding=False,
+        return_tensors=None,
+    )
+    
+    # Get the length of the 'problem' and 'answer' parts in tokens
+    problem_tokens = tokenizer(samples['problem'], truncation=True, max_length=512, padding=False, return_tensors=None)["input_ids"]
+    answer_tokens = tokenizer(samples['answer'], truncation=True, max_length=512, padding=False, return_tensors=None)["input_ids"]
+
+    # Calculate the start position of the answer in the tokenized concatenated text
+    answer_start_idx = len(problem_tokens)
+
+    # Create labels array where only the answer part has valid labels
+    labels = [-100] * len(result["input_ids"])  # -100 is the ignored index for loss computation in PyTorch
+    labels[answer_start_idx:answer_start_idx + len(answer_tokens)] = result["input_ids"][answer_start_idx:answer_start_idx + len(answer_tokens)]
+
+    # Assign the labels to the result
+    result["labels"] = labels
+
     return result
 
 parser = argparse.ArgumentParser()
@@ -144,7 +174,7 @@ tokenizer.padding_side = "left"
 # https://github.com/huggingface/datasets/issues/824#issuecomment-758358089
 # data = load_dataset("Abirate/english_quotes")
 data = load_dataset('json', data_files=args.dataset_path)
-tokenized_data = data.map(tokenize)
+tokenized_data = data.map(tokenize_answer_only)
 #data = data.map(tokenize_function, batched=True, batch_size=8)
 
 # Split the dataset into training and validation sets (80% train, 20% validate)
@@ -161,6 +191,25 @@ print(f"Validation set size: {len(val_dataset)}")
 # Inspect a sample from the train and validation datasets
 print(train_dataset[0])
 print(val_dataset[0])
+
+resume_from_checkpoint = args.checkpoint # set this to the adapter_model.bin file you want to resume from
+
+if resume_from_checkpoint:
+    if os.path.exists(resume_from_checkpoint):
+        print(f"Restarting from {resume_from_checkpoint}")
+        #adapters_weights = torch.load(resume_from_checkpoint)
+        #set_peft_model_state_dict(model, adapters_weights)
+        #model = PeftModel.from_pretrained(model, resume_from_checkpoint)
+        
+        # Load the safetensors file
+        #adapters_weights = load_file(resume_from_checkpoint)
+        
+        # Set the weights in the model
+        #set_peft_model_state_dict(model, adapters_weights)
+        peft_config = PeftConfig.from_pretrained(resume_from_checkpoint)
+        model = PeftModel.from_pretrained(model, model_id=resume_from_checkpoint)
+    else:
+        print(f"Checkpoint {resume_from_checkpoint} not found")
 
 
 model.train() # put model back into training mode
@@ -181,16 +230,6 @@ config = LoraConfig(
 )
 model = get_peft_model(model, config)
 
-resume_from_checkpoint = args.checkpoint # set this to the adapter_model.bin file you want to resume from
-
-if resume_from_checkpoint:
-    if os.path.exists(resume_from_checkpoint):
-        print(f"Restarting from {resume_from_checkpoint}")
-        adapters_weights = torch.load(resume_from_checkpoint)
-        set_peft_model_state_dict(model, adapters_weights)
-    else:
-        print(f"Checkpoint {resume_from_checkpoint} not found")
-
 if torch.cuda.device_count() > 1:
     # keeps Trainer from trying its own DataParallelism when more than 1 gpu is available
     model.is_parallelizable = True
@@ -208,18 +247,18 @@ output_dir = args.output_dir #"code-llama-fine-tuned-v1"
 training_args = TrainingArguments(
         #per_device_train_batch_size=4,
         #gradient_accumulation_steps=4,
-        per_device_train_batch_size=4,#per_device_train_batch_size,
+        per_device_train_batch_size=per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
         warmup_steps=100,
         max_steps=400,
-        learning_rate=5e-4,
+        learning_rate=3e-4,#5e-4,
         fp16=True,
         logging_steps=10,
         optim="adamw_torch",
         evaluation_strategy="steps", # if val_set_size > 0 else "no",
         save_strategy="steps",
-        eval_steps=40,
-        save_steps=40,
+        eval_steps=100,
+        save_steps=100,
         output_dir=output_dir,
         # save_total_limit=3,
         load_best_model_at_end=False,
@@ -243,12 +282,14 @@ trainer = Trainer(
 model.config.use_cache = False
 
 old_state_dict = model.state_dict
-model.state_dict = (lambda self, *_, **__: get_peft_model_state_dict(self, old_state_dict())).__get__(
-    model, type(model)
-)
+# Commenting these lines to fix the loading safetensor file error issue (https://github.com/slai-labs/get-beam/issues/94)
+#model.state_dict = (lambda self, *_, **__: get_peft_model_state_dict(self, old_state_dict())).__get__(
+#    model, type(model)
+#)
 if torch.__version__ >= "2" and sys.platform != "win32":
     print("compiling the model")
     model = torch.compile(model)
+
 trainer.train()
 
 # Evaluate the model
@@ -256,6 +297,7 @@ results = trainer.evaluate()
 print(results)
 
 model.save_pretrained(args.finetuned_model_path)
+model.save_pretrained(args.finetuned_model_path + '-bin', safe_serialization=False)
 
 # Inference
 # TODO: update eval
