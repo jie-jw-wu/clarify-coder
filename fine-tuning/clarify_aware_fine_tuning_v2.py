@@ -1,11 +1,18 @@
 
 import argparse
 import os
+import sys
 import torch
 import torch.nn as nn
-from transformers import Trainer, TrainingArguments, AutoModelForCausalLM, AutoTokenizer, DataCollatorForLanguageModeling
+from transformers import Trainer, TrainingArguments, AutoModelForCausalLM, AutoTokenizer, DataCollatorForLanguageModeling, DataCollatorForSeq2Seq
 from datasets import load_from_disk, load_dataset
-from peft import LoraConfig, get_peft_model
+from peft import (
+    LoraConfig,
+    get_peft_model,
+    get_peft_model_state_dict,
+    prepare_model_for_kbit_training,
+    set_peft_model_state_dict,
+)
 from sklearn.model_selection import train_test_split
 
 # fine-tuning tutorial: 
@@ -14,6 +21,7 @@ from sklearn.model_selection import train_test_split
 ## https://colab.research.google.com/github/peremartra/Large-Language-Model-Notebooks-Course/blob/main/5-Fine%20Tuning/LoRA_Tuning_PEFT.ipynb#scrollTo=_TAjrSWSe14q
 ## https://colab.research.google.com/drive/14xo6sj4dARk8lXZbOifHEn1f_70qNAwy?usp=sharing
 ## https://huggingface.co/blog/peft
+## https://github.com/ragntune/code-llama-finetune/tree/main?tab=readme-ov-file
 def merge_columns(example):
     example["prediction"] = example["quote"] + " ->: " + str(example["tags"])
     return example
@@ -39,10 +47,23 @@ def tokenize_function(samples):
 
 def tokenize_function2(samples):
     print(samples)
-    concatenated_text = samples['problem'] + samples['answer']
     
     # Return the concatenated text in a dict format
     return {'concatenated_text': concatenated_text}
+
+def tokenize(samples):
+    concatenated_text = samples['problem'] + samples['answer']
+    result = tokenizer(
+        concatenated_text,
+        truncation=True,
+        max_length=512,
+        padding=False,
+        return_tensors=None,
+    )
+
+    # "self-supervised learning" means the labels are also the inputs:
+    result["labels"] = result["input_ids"].copy()
+    return result
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model_name_or_path', type=str, help='Path to the model',required=True)
@@ -52,6 +73,8 @@ parser.add_argument('--use_int8', action='store_true', help='whether to use int8
 parser.add_argument('--use_fp16', action='store_true', help='whether to use fp16 precision')
 parser.add_argument("--dataset_path",help="dataset_path",type=str,required=True)
 parser.add_argument("--finetuned_model_path",help="finetuned_model_path",type=str,required=True)
+parser.add_argument('--checkpoint', type=str, default="", help='checkpoint file')
+parser.add_argument("--output_dir",type=str,required=True)
 
 args = parser.parse_args()
 
@@ -78,7 +101,8 @@ if args.use_int8:
         device_map="auto",
         cache_dir=HF_HOME,
         offload_folder=offload_folder, 
-        local_files_only=True,     
+        local_files_only=True,
+        torch_dtype=torch.float16,
     )
 # if specified, use fp16 precision
 elif args.use_fp16:
@@ -112,12 +136,15 @@ tokenizer = AutoTokenizer.from_pretrained(
 )
 
 #tokenizer.pad_token = tokenizer.eos_token
-tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+tokenizer.add_eos_token = True
+tokenizer.pad_token_id = 0
+tokenizer.padding_side = "left"
+
 # TODO: Load the dataset
 # https://github.com/huggingface/datasets/issues/824#issuecomment-758358089
 # data = load_dataset("Abirate/english_quotes")
 data = load_dataset('json', data_files=args.dataset_path)
-tokenized_data = data.map(tokenize_function, batched=True)
+tokenized_data = data.map(tokenize)
 #data = data.map(tokenize_function, batched=True, batch_size=8)
 
 # Split the dataset into training and validation sets (80% train, 20% validate)
@@ -136,55 +163,92 @@ print(train_dataset[0])
 print(val_dataset[0])
 
 
-### Post-processing on the model
-# Finally, we need to apply some post-processing on the 8-bit model to enable training, let's freeze all our layers, and cast the layer-norm in `float32` for stability. We also cast the output of the last layer in `float32` for the same reasons.
-for param in model.parameters():
-  param.requires_grad = False  # freeze the model - train adapters later
-  if param.ndim == 1:
-    # cast the small parameters (e.g. layernorm) to fp32 for stability
-    param.data = param.data.to(torch.float32)
+model.train() # put model back into training mode
+model = prepare_model_for_kbit_training(model)
 
-model.gradient_checkpointing_enable()  # reduce number of stored activations
-model.enable_input_require_grads()
-
-class CastOutputToFloat(nn.Sequential):
-  def forward(self, x): return super().forward(x).to(torch.float32)
-model.lm_head = CastOutputToFloat(model.lm_head)
-
-
-# Define LoRA configuration
-lora_config = LoraConfig(
+config = LoraConfig(
     r=16,
-    lora_alpha=32,
-    target_modules=["q_proj", "v_proj"],
+    lora_alpha=16,
+    target_modules=[
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+],
     lora_dropout=0.05,
     bias="none",
-    task_type="CAUSAL_LM"
+    task_type="CAUSAL_LM",
 )
+model = get_peft_model(model, config)
 
-# Apply LoRA to the model
-model = get_peft_model(model, lora_config)
+resume_from_checkpoint = args.checkpoint # set this to the adapter_model.bin file you want to resume from
+
+if resume_from_checkpoint:
+    if os.path.exists(resume_from_checkpoint):
+        print(f"Restarting from {resume_from_checkpoint}")
+        adapters_weights = torch.load(resume_from_checkpoint)
+        set_peft_model_state_dict(model, adapters_weights)
+    else:
+        print(f"Checkpoint {resume_from_checkpoint} not found")
+
+if torch.cuda.device_count() > 1:
+    # keeps Trainer from trying its own DataParallelism when more than 1 gpu is available
+    model.is_parallelizable = True
+    model.model_parallel = True
+
+
 print_trainable_parameters(model)
 
 # Define the Trainer
-trainer = Trainer(
-    model=model, 
-    train_dataset=data['train'],#train_dataset,
-    args=TrainingArguments(
-        per_device_train_batch_size=4, 
-        gradient_accumulation_steps=4,
-        warmup_steps=100, 
-        max_steps=200, 
-        learning_rate=2e-4, 
+batch_size = 128
+per_device_train_batch_size = 32
+gradient_accumulation_steps = batch_size // per_device_train_batch_size
+output_dir = args.output_dir #"code-llama-fine-tuned-v1"
+
+training_args = TrainingArguments(
+        #per_device_train_batch_size=4,
+        #gradient_accumulation_steps=4,
+        per_device_train_batch_size=4,#per_device_train_batch_size,
+        gradient_accumulation_steps=gradient_accumulation_steps,
+        warmup_steps=100,
+        max_steps=400,
+        learning_rate=5e-4,
         fp16=True,
-        logging_steps=1, 
-        output_dir='outputs'
+        logging_steps=10,
+        optim="adamw_torch",
+        evaluation_strategy="steps", # if val_set_size > 0 else "no",
+        save_strategy="steps",
+        eval_steps=40,
+        save_steps=40,
+        output_dir=output_dir,
+        # save_total_limit=3,
+        load_best_model_at_end=False,
+        # ddp_find_unused_parameters=False if ddp else None,
+        group_by_length=True, # group sequences of roughly the same length together to speed up training
+        report_to="none", # if use_wandb else "none",
+        run_name=None, # if use_wandb else None,
+        remove_unused_columns=True,
+    )
+
+trainer = Trainer(
+    model=model,
+    train_dataset=train_dataset,
+    eval_dataset=val_dataset,
+    args=training_args,
+    data_collator=DataCollatorForSeq2Seq(
+        tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
     ),
-    data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
-    #eval_dataset=val_dataset,
 )
-model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
-# TODO: train only for answer part (not question part)
+
+model.config.use_cache = False
+
+old_state_dict = model.state_dict
+model.state_dict = (lambda self, *_, **__: get_peft_model_state_dict(self, old_state_dict())).__get__(
+    model, type(model)
+)
+if torch.__version__ >= "2" and sys.platform != "win32":
+    print("compiling the model")
+    model = torch.compile(model)
 trainer.train()
 
 # Evaluate the model

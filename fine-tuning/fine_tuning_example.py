@@ -94,7 +94,7 @@ tokenizer = AutoTokenizer.from_pretrained(
 # data = load_dataset("Abirate/english_quotes")
 data = load_from_disk(args.dataset_path)
 data = data.map(tokenize_function, batched=True)
-
+print(data)
 ### Post-processing on the model
 # Finally, we need to apply some post-processing on the 8-bit model to enable training, let's freeze all our layers, and cast the layer-norm in `float32` for stability. We also cast the output of the last layer in `float32` for the same reasons.
 for param in model.parameters():

@@ -1,0 +1,26 @@
+download model: 
+python generate_response.py -d HumanEvalComm -m CodeLlama-7b-hf -n 1 -t 1 -s 0 -o manualRemove --hf_dir /scratch/jie --model_name_or_path codellama/CodeLlama-7b-hf --saved_model_path /project/def-fard/jie/codellama/CodeLlama-7b-hf -maxp -1 --do_save_model
+python generate_response.py -d HumanEvalComm -m CodeQwen1.5-7B-Chat -n 1 -t 1 -s 0 -o manualRemove --hf_dir /scratch/jie --model_name_or_path Qwen/CodeQwen1.5-7B-Chat --saved_model_path /project/def-fard/jie/Qwen/CodeQwen1.5-7B-Chat -maxp -1 --do_save_model
+
+python generate_response.py -d HumanEvalComm -m deepseek-llm-7b-chat -n 1 -t 1 -s 0 -o manualRemove --hf_dir /scratch/jie --model_name_or_path /project/def-fard/jie/deepseek-ai/deepseek-llm-7b-chat -maxp -1 --seq_length 512 --log_phase_input 0 --log_phase_output 1 --use_fp16
+
+module load python rust cuda arrow/17.0.0 (we actually need pyarrow)
+source ~/ENV/bin/activate
+deactivate
+
+pip install nltk transformers openai accelerate
+pip3 install torch torchvision torchaudio
+export OPENAI_KEY='XXX'
+
+#pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+python fine_tuning_example.py --dataset_path /project/def-fard/jie/datasets --model_name_or_path /project/def-fard/jie/facebook/opt-6.7b --finetuned_model_path /project/def-fard/jie/finetuned_models/opt-6.7b-finetuned
+
+8/11
+
+python clarify_aware_fine_tuning.py --dataset_path /project/def-fard/jie/finetuning_data/finetuningv1.json --model_name_or_path /project/def-fard/jie/codellama/CodeLlama-7b-Instruct-hf --finetuned_model_path /project/def-fard/jie/finetuned_models/CodeLlama-7b-Instruct-hf-finetuned-v1
+python clarify_aware_fine_tuning.py --dataset_path /project/def-fard/jie/finetuning_data/finetuningv1.json --model_name_or_path /project/def-fard/jie/deepseek-ai/deepseek-coder-6.7b-instruct --finetuned_model_path /project/def-fard/jie/finetuned_models/deepseek-coder-6.7b-instruct-finetuned-v1
+ python clarify_aware_fine_tuning_v2.py --dataset_path /project/def-fard/jie/finetuning_data/finetuningv1.json --model_name_or_path /project/def-fard/jie/deepseek-ai/deepseek-coder-6.7b-instruct --finetuned_model_path /project/def-fard/jie/finetuned_models/deepseek-coder-6.7b-instruct-finetuned-v1 > result.txt
+
+ 8/15
+ sbatch 
