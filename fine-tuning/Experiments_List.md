@@ -69,7 +69,7 @@
 - **Model**
     - Same as experiment 1, we use the `deepseek-ai/deepseek-coder-6.7b-instruct` model.
 
-## 3. Focusing on the "answer"
+## 3. Experiment 3 (Focusing on the "answer")
 - **Finetuning Data**: Same as Experiment 2.
 - **Code**
     - We use the `clarify_aware_fine_tuning_v4.py` file. We modify the `tokenize` function to focus on the `answer` field. We use formatting tokens to help the model learn the association between different problem types and expected outputs. If the problem is unclear (Ambiguous, Incomplete, Inconsistent), then the model is expected to generate clarifying questions, otherwise it should generate code.
