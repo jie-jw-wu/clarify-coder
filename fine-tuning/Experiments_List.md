@@ -54,7 +54,7 @@
 - **Model**
     - We use the `deepseek-ai/deepseek-coder-6.7b-instruct` model. Due to compute restrictions, we can only use the 7B model.
 
-## 2. Experiment 2 (Integration of "type")
+## Experiment 2 (Integration of "type")
 - **Finetuning Data**: We augment the original dataset by adding the following prefixes to the answer fields:
     - Original: The problem statement is straightforward and requires no additional information. We can proceed with the implementation without further questions.
     - Ambiguous: The problem statement is not fully clear, and additional details are needed to proceed effectively. This is an ambiguous problem statement with multiple valid interpretations and unspecified details, requiring clarification.",
@@ -69,7 +69,7 @@
 - **Model**
     - Same as experiment 1, we use the `deepseek-ai/deepseek-coder-6.7b-instruct` model.
 
-## 3. Experiment 3 (Focusing on the "answer")
+## Experiment 3 (Focusing on the "answer")
 - **Finetuning Data**: Same as Experiment 2.
 - **Code**
     - We use the `clarify_aware_fine_tuning_v4.py` file. We modify the `tokenize` function to focus on the `answer` field. We use formatting tokens to help the model learn the association between different problem types and expected outputs. If the problem is unclear (Ambiguous, Incomplete, Inconsistent), then the model is expected to generate clarifying questions, otherwise it should generate code.
