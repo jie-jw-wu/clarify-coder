@@ -103,3 +103,9 @@
     ```
 - **Model**
     - Same as experiment 1, we use the `deepseek-ai/deepseek-coder-6.7b-instruct` model.
+
+## Experiment 4 (Classification Layer)
+
+## Experiment 5 (Chat Model)
+
+## Experiment 6 (Twice as many parameters (almost) : 13B)
