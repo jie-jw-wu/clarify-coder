@@ -49,7 +49,7 @@
     ``` 
 
 - **Code**
-    - We use the `clarify_aware_fine_tuning_v2.py` file.
+    - We use the `clarify_aware_fine_tuning_v2.py` file with `tokenize_version` argument set to `1`.
 
 - **Model**
     - We use the `deepseek-ai/deepseek-coder-6.7b-instruct` model. Due to compute restrictions, we can only use the 7B model.
@@ -62,7 +62,7 @@
     - Incomplete: The problem statement is not fully clear, and additional details are needed to proceed effectively. This is an incomplete problem statement and it lacks some crucial details that need to be filled in to create a complete solution.
 
 - **Code**
-    - We use the `clarify_aware_fine_tuning_v3.py` file. The only change is in the `tokenize` function, where we concatenate `type` field into the final output.
+    - We use the `clarify_aware_fine_tuning_v2.py` file with `tokenize_version` argument set to `2`. The only change is: we concatenate `type` field into the final output.
     ```
         concatenated_text = samples['problem'] + samples['answer'] + samples['type']
     ```
@@ -72,40 +72,12 @@
 ## Experiment 3 (Focusing on the "answer")
 - **Finetuning Data**: Same as Experiment 2.
 - **Code**
-    - We use the `clarify_aware_fine_tuning_v4.py` file. We modify the `tokenize` function to focus on the `answer` field. We use formatting tokens to help the model learn the association between different problem types and expected outputs. If the problem is unclear (Ambiguous, Incomplete, Inconsistent), then the model is expected to generate clarifying questions, otherwise it should generate code.
-    ```
-        def tokenize(samples):
-        type = samples['type']
-        if type == "Original":
-            answer = f"[CODE] {samples['answer']}"
-        else:
-            answer = f"[QUESTION] {samples['answer']}"
-
-        concatenated_text = f"Problem Type: {type}\nProblem: {samples['problem']}\nAnswer:"
-        
-        result = tokenizer(
-            concatenated_text,
-            truncation=True,
-            max_length=512,
-            padding="max_length",
-            return_tensors=None,
-        )
-
-        result["labels"] = tokenizer(
-            answer, 
-            truncation=True, 
-            max_length=512, 
-            padding="max_length"
-        )["input_ids"]
-
-        return result
-
-    ```
+    - We use the `clarify_aware_fine_tuning_v2.py` file with `tokenize_version` argument set to `3`. We modify the tokenizer to focus on the `answer` field. We use formatting tokens to help the model learn the association between different problem types and expected outputs. If the problem is unclear (Ambiguous, Incomplete, Inconsistent), then the model is expected to generate clarifying questions, otherwise it should generate code.
 - **Model**
     - Same as experiment 1, we use the `deepseek-ai/deepseek-coder-6.7b-instruct` model.
 
-## Experiment 4 (Classification Layer)
+## Experiment 4 (R-Tuning Inspired Instruction-Tuning Approach)
 
-## Experiment 5 (Chat Model)
+## Experiment 5 (CodeQWen Chat Model)
 
-## Experiment 6 (Twice as many parameters (almost) : 13B)
+## Experiment 6 (CodeLLaMa: Twice as many parameters : 13B)

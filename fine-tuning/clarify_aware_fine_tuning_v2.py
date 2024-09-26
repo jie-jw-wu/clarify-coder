@@ -51,7 +51,7 @@ def tokenize_function2(samples):
     # Return the concatenated text in a dict format
     return {'concatenated_text': concatenated_text}
 
-def tokenize(samples):
+def tokenize_v1(samples):
     concatenated_text = samples['problem'] + samples['answer']
     result = tokenizer(
         concatenated_text,
@@ -60,10 +60,71 @@ def tokenize(samples):
         padding=False,
         return_tensors=None,
     )
-
-    # "self-supervised learning" means the labels are also the inputs:
     result["labels"] = result["input_ids"].copy()
     return result
+
+# Tokenizer function 2: With 'type' included in concatenation
+def tokenize_v2(samples):
+    concatenated_text = samples['problem'] + samples['answer'] + samples['type']
+    result = tokenizer(
+        concatenated_text,
+        truncation=True,
+        max_length=512,
+        padding=False,
+        return_tensors=None,
+    )
+    result["labels"] = result["input_ids"].copy()
+    return result
+
+# Tokenizer function 3: Special formatting and different labels handling
+def tokenize_v3(samples):
+    type = samples['type']
+    if type == "Original":
+        answer = f"[CODE] {samples['answer']}"
+    else:
+        answer = f"[QUESTION] {samples['answer']}"
+
+    concatenated_text = f"Problem Type: {type}\nProblem: {samples['problem']}\nAnswer:"
+    
+    result = tokenizer(
+        concatenated_text,
+        truncation=True,
+        max_length=512,
+        padding="max_length",
+        return_tensors=None,
+    )
+
+    result["labels"] = tokenizer(
+        answer, 
+        truncation=True, 
+        max_length=512, 
+        padding="max_length"
+    )["input_ids"]
+
+    return result
+
+# R-Tuning Inspired Prefix-Suffix approach
+def tokenize_v4(samples):
+    QPROMPT = "You are an expert software developer who writes high quality code. With below information, please either generate Python3 code (Respond directly with code only with markdown), or ask clarifying questions:\n"
+    
+    if samples['type'] == "Original":
+        APROMPT = "This is a clear problem requiring no clarifications. Please generate the required Python3 code directly in markdown."
+    else:
+        APROMPT = "I have a few clarifying questions before proceeding with the code. Please respond with the necessary details so I can assist further."
+    
+    concatenated_text = f"{QPROMPT} {samples['problem']}" + f"{APROMPT} {samples['answer']}"
+    
+    result = tokenizer(
+        concatenated_text,
+        truncation=True,
+        max_length=512,
+        padding=False,
+        return_tensors=None,
+    )
+    
+    result["labels"] = result["input_ids"].copy()
+    return result
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model_name_or_path', type=str, help='Path to the model',required=True)
@@ -76,7 +137,18 @@ parser.add_argument("--finetuned_model_path",help="finetuned_model_path",type=st
 parser.add_argument('--checkpoint', type=str, default="", help='checkpoint file')
 parser.add_argument("--output_dir",type=str,required=True)
 
+parser.add_argument('--tokenize_version', type=int, choices=[1, 2, 3, 4], required=True, help='Select which tokenize function to use: 1, 2, or 3')
+
 args = parser.parse_args()
+
+if args.tokenize_version == 1:
+    tokenize_fn = tokenize_v1
+elif args.tokenize_version == 2:
+    tokenize_fn = tokenize_v2
+elif args.tokenize_version == 3:
+    tokenize_fn = tokenize_v3
+elif args.tokenize_version == 4:
+    tokenize_fn = tokenize_v4
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
@@ -144,7 +216,7 @@ tokenizer.padding_side = "left"
 # https://github.com/huggingface/datasets/issues/824#issuecomment-758358089
 # data = load_dataset("Abirate/english_quotes")
 data = load_dataset('json', data_files=args.dataset_path)
-tokenized_data = data.map(tokenize)
+tokenized_data = data.map(tokenize_fn)
 #data = data.map(tokenize_function, batched=True, batch_size=8)
 
 # Split the dataset into training and validation sets (80% train, 20% validate)
