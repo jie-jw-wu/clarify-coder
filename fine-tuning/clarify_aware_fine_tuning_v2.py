@@ -93,7 +93,7 @@ def tokenize_v3(samples):
         padding="max_length",
         return_tensors=None,
     )
-
+    # Focus on the answer part during loss calculating
     result["labels"] = tokenizer(
         answer, 
         truncation=True, 
@@ -108,9 +108,9 @@ def tokenize_v4(samples):
     QPROMPT = "You are an expert software developer who writes high quality code. With below information, please either generate Python3 code (Respond directly with code only with markdown), or ask clarifying questions:\n"
     
     if samples['type'] == "Original":
-        APROMPT = "This is a clear problem requiring no clarifications. Please generate the required Python3 code directly in markdown."
+        APROMPT = "This is a clear problem requiring no clarifications. Let's generate the required Python3 code directly in markdown."
     else:
-        APROMPT = "I have a few clarifying questions before proceeding with the code. Please respond with the necessary details so I can assist further."
+        APROMPT = "I have a few clarifying questions. Please respond with the necessary details so I can assist further."
     
     concatenated_text = f"{QPROMPT} {samples['problem']}" + f"{APROMPT} {samples['answer']}"
     
