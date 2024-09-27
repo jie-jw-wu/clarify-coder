@@ -24,3 +24,12 @@ python clarify_aware_fine_tuning.py --dataset_path /project/def-fard/jie/finetun
 
  8/15
  sbatch 
+
+python clarify_aware_fine_tuning_v2.py --checkpoint ./code-llama-fine-tuned-v1/checkpoint-220/adapter_model.safetensors --outputdir deepseek-coder-v1 --dataset_path /project/def-fard/jie/finetuning_data/finetuningv1.json --model_name_or_path /project/def-fard/jie/deepseek-ai/deepseek-coder-6.7b-instruct --finetuned_model_path /project/def-fard/jie/finetuned_models/deepseek-coder-6.7b-instruct-finetuned-v1 > result_v2.txt
+
+ python clarify_aware_fine_tuning_v2.py --checkpoint ./code-llama-fine-tuned-v1/checkpoint-220 --outputdir deepseek-coder-v1 --
+dataset_path /project/def-fard/jie/finetuning_data/finetuningv1.json --model_name_or_path /project/def-fard/jie/deepseek-ai/deepseek-coder-6.7b-instruct --fine
+tuned_model_path /project/def-fard/jie/finetuned_models/deepseek-coder-6.7b-instruct-finetuned-v1 > result_v3.txt
+
+python clarify_aware_fine_tuning_v2.py --outputdir deepseek-coder-v1 --dataset_path /project/def-fard/jie/finetuning_data/finetuningv1.json --model_name_or_path /project/def-fard/jie/deepseek-ai/deepseek-coder-6.7b-instruct --finetuned_model_path /project/def-fard/jie/finetuned_models/deepseek-coder-6.7b-instruct-finetuned-v1 > result_v4.txt
+python clarify_aware_fine_tuning_v2.py --checkpoint ./deepseek-coder-v1/checkpoint-200 --output_dir deepseek-coder-v4-1 --dataset_path /project/def-fard/jie/finetuning_data/finetuningv1.json --model_name_or_path /project/def-fard/jie/deepseek-ai/deepseek-coder-6.7b-instruct --finetuned_model_path /project/def-fard/jie/finetuned_models/deepseek-coder-6.7b-instruct-finetuned-v1 > result_v4_1.txt
