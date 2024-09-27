@@ -315,9 +315,10 @@ trainer = Trainer(
 model.config.use_cache = False
 
 old_state_dict = model.state_dict
-model.state_dict = (lambda self, *_, **__: get_peft_model_state_dict(self, old_state_dict())).__get__(
-    model, type(model)
-)
+# Commenting these lines to fix the loading safetensor file error issue (https://github.com/slai-labs/get-beam/issues/94)
+#model.state_dict = (lambda self, *_, **__: get_peft_model_state_dict(self, old_state_dict())).__get__(
+#    model, type(model)
+#)
 if torch.__version__ >= "2" and sys.platform != "win32":
     print("compiling the model")
     model = torch.compile(model)
@@ -328,10 +329,11 @@ results = trainer.evaluate()
 print(results)
 
 model.save_pretrained(args.finetuned_model_path)
+model.save_pretrained(args.finetuned_model_path + '-bin', safe_serialization=False)
 
 # Inference
 # TODO: update eval
-batch = tokenizer("Two things are infinite: ", return_tensors='pt').to('cuda') 
+batch = tokenizer("Who is timeless? ", return_tensors='pt').to('cuda') 
 
 with torch.cuda.amp.autocast():
   output_tokens = model.generate(**batch, max_new_tokens=50)
