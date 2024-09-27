@@ -105,6 +105,7 @@ parser.add_argument("--dataset_path",help="dataset_path",type=str,required=True)
 parser.add_argument("--finetuned_model_path",help="finetuned_model_path",type=str,required=True)
 parser.add_argument('--checkpoint', type=str, default="", help='checkpoint file')
 parser.add_argument("--output_dir",type=str,required=True)
+parser.add_argument('-bs','--per_device_train_batch_size', type=int, default=32)
 
 args = parser.parse_args()
 
