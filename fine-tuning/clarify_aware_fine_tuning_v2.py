@@ -54,6 +54,7 @@ def tokenize_function2(samples):
     # Return the concatenated text in a dict format
     return {'concatenated_text': concatenated_text}
 
+# Tokenizer function 1: concatenating question and answer
 def tokenize_v1(samples):
     concatenated_text = samples['problem'] + samples['answer']
     result = tokenizer(
@@ -68,7 +69,8 @@ def tokenize_v1(samples):
     result["labels"] = result["input_ids"].copy()
     return result
 
-def tokenize_answer_only(samples):
+# Tokenizer function 2: focusing on answer
+def tokenize_v2(samples):
     # Tokenize the concatenated text but focus on the answer part for loss calculation
     concatenated_text = samples['problem'] + samples['answer']
     result = tokenizer(
@@ -95,8 +97,8 @@ def tokenize_answer_only(samples):
 
     return result
 
-# Tokenizer function 2: With 'type' included in concatenation
-def tokenize_v2(samples):
+# Tokenizer function 3: With 'type' included in concatenation
+def tokenize_v3(samples):
     concatenated_text = samples['problem'] + samples['answer'] + samples['type']
     result = tokenizer(
         concatenated_text,
@@ -108,34 +110,7 @@ def tokenize_v2(samples):
     result["labels"] = result["input_ids"].copy()
     return result
 
-# Tokenizer function 3: Special formatting and different labels handling
-def tokenize_v3(samples):
-    type = samples['type']
-    if type == "Original":
-        answer = f"[CODE] {samples['answer']}"
-    else:
-        answer = f"[QUESTION] {samples['answer']}"
-
-    concatenated_text = f"Problem Type: {type}\nProblem: {samples['problem']}\nAnswer:"
-    
-    result = tokenizer(
-        concatenated_text,
-        truncation=True,
-        max_length=512,
-        padding="max_length",
-        return_tensors=None,
-    )
-    # Focus on the answer part during loss calculating
-    result["labels"] = tokenizer(
-        answer, 
-        truncation=True, 
-        max_length=512, 
-        padding="max_length"
-    )["input_ids"]
-
-    return result
-
-# R-Tuning Inspired Prefix-Suffix approach
+# Tokenizer function 4: R-Tuning Inspired Prefix-Suffix Instruction-Tuning approach
 def tokenize_v4(samples):
     QPROMPT = "You are an expert software developer who writes high quality code. With below information, please either generate Python3 code (Respond directly with code only with markdown), or ask clarifying questions:\n"
     
@@ -149,14 +124,13 @@ def tokenize_v4(samples):
     result = tokenizer(
         concatenated_text,
         truncation=True,
-        max_length=512,
+        max_length=2048,
         padding=False,
         return_tensors=None,
     )
     
     result["labels"] = result["input_ids"].copy()
     return result
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model_name_or_path', type=str, help='Path to the model',required=True)
@@ -182,8 +156,6 @@ elif args.tokenize_version == 3:
     tokenize_fn = tokenize_v3
 elif args.tokenize_version == 4:
     tokenize_fn = tokenize_v4
-else:
-    tokenize_fn = tokenize_answer_only
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
@@ -327,8 +299,8 @@ training_args = TrainingArguments(
         per_device_train_batch_size=per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
         warmup_steps=100,
-        max_steps=400,
-        learning_rate=3e-4,#5e-4,
+        max_steps=1200,
+        learning_rate=3e-5,#5e-4,
         fp16=True,
         logging_steps=10,
         optim="adamw_torch",

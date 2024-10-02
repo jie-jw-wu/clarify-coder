@@ -1,7 +1,5 @@
 # Finetuning Experiment Details
 
-## Experiment 1 (the baseline)
-
 - **Finetuning Data**: 
     - The training data consists of the following number of samples:
         - Original: 8765 (from the APPS train and test sets)
@@ -49,12 +47,12 @@
     ``` 
 
 - **Code**
-    - We use the `clarify_aware_fine_tuning_v2.py` file with `tokenize_version` argument set to `1`.
+    - We use the `clarify_aware_fine_tuning_v2.py` file, varying the `tokenize_version` argument to test different approaches. 
 
 - **Model**
-    - We use the `deepseek-ai/deepseek-coder-6.7b-instruct` model. Due to compute restrictions, we can only use the 7B model.
+    - Our baseline is the `deepseek-ai/deepseek-coder-6.7b-instruct` model. Due to compute restrictions, we can only use the 7B model.
 
-## Experiment 2 (Integration of "type")
+<!-- ## Experiment 2 (Integration of "type")
 - **Finetuning Data**: We augment the original dataset by adding the following prefixes to the answer fields:
     - Original: The problem statement is straightforward and requires no additional information. We can proceed with the implementation without further questions.
     - Ambiguous: The problem statement is not fully clear, and additional details are needed to proceed effectively. This is an ambiguous problem statement with multiple valid interpretations and unspecified details, requiring clarification.",
@@ -80,4 +78,4 @@
 
 ## Experiment 5 (CodeQWen Chat Model)
 
-## Experiment 6 (CodeLLaMa: Twice as many parameters : 13B)
+## Experiment 6 (CodeLLaMa: Twice as many parameters : 13B) -->
