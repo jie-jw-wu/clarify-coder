@@ -4,9 +4,10 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 import numpy as np
 import nltk
 from nltk import FreqDist
+from tqdm import tqdm
 
 # Dependencies required:
-# pip install torch transformers numpy nltk
+# pip install torch transformers numpy nltk tqdm
 
 # Ensure that you have downloaded the NLTK punkt tokenizer
 nltk.download('punkt')
@@ -40,7 +41,7 @@ def compute_entropy(text):
     
     return entropy
 
-file_path = 'A1_finetuning/finetuning_data_ques_only.jsonl'
+file_path = '<DATASET PATH>.jsonl'
 data = load_jsonl(file_path)
 
 model_name = 'gpt2'  # can choose to use another model
@@ -48,9 +49,12 @@ tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
 model.eval()
 
-results = []
+problem_perplexities = []
+answer_perplexities = []
+problem_entropies = []
+answer_entropies = []
 
-for entry in data:
+for entry in tqdm(data, desc="Processing Entries", unit="entry"):
     problem = entry['problem']
     answer = entry['answer']
     
@@ -60,24 +64,31 @@ for entry in data:
     problem_entropy = compute_entropy(problem)
     answer_entropy = compute_entropy(answer)
     
-    results.append({
-        'problem': problem,
-        'answer': answer,
-        'problem_perplexity': problem_perplexity,
-        'answer_perplexity': answer_perplexity,
-        'problem_entropy': problem_entropy,
-        'answer_entropy': answer_entropy
-    })
+    problem_perplexities.append(problem_perplexity)
+    answer_perplexities.append(answer_perplexity)
+    problem_entropies.append(problem_entropy)
+    answer_entropies.append(answer_entropy)
 
-# print results
-for res in results:
-    print(f"Problem: {res['problem']}")
-    print(f"Answer: {res['answer']}")
-    print(f"Problem Perplexity: {res['problem_perplexity']:.4f}, Problem Entropy: {res['problem_entropy']:.4f}")
-    print(f"Answer Perplexity: {res['answer_perplexity']:.4f}, Answer Entropy: {res['answer_entropy']:.4f}\n")
+avg_problem_perplexity = np.mean(problem_perplexities)
+avg_answer_perplexity = np.mean(answer_perplexities)
+avg_problem_entropy = np.mean(problem_entropies)
+avg_answer_entropy = np.mean(answer_entropies)
 
-# save results to a JSONL file
+print(f"Average Problem Perplexity: {avg_problem_perplexity:.4f}")
+print(f"Average Answer Perplexity: {avg_answer_perplexity:.4f}")
+print(f"Average Problem Entropy: {avg_problem_entropy:.4f}")
+print(f"Average Answer Entropy: {avg_answer_entropy:.4f}")
+
+# Optionally save results to a JSONL file
 # output_file_path = 'results.jsonl'
 # with open(output_file_path, 'w') as f:
-#     for res in results:
+#     for i, entry in enumerate(data):
+#         res = {
+#             'problem': entry['problem'],
+#             'answer': entry['answer'],
+#             'problem_perplexity': problem_perplexities[i],
+#             'answer_perplexity': answer_perplexities[i],
+#             'problem_entropy': problem_entropies[i],
+#             'answer_entropy': answer_entropies[i]
+#         }
 #         f.write(json.dumps(res) + '\n')

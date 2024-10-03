@@ -16,7 +16,7 @@
 
     Ambiguous Coding Problem Description: <>
 
-    When generating these questions, do not reference or mention the original problem description in any way. Frame the clarifying questions as if you have only seen the modified problem description, without acknowledging the existence of the original version. 
+    When generating these questions, do not mention the original problem description in any way. Frame the clarifying questions without acknowledging the existence of the original version. 
 
     Please only output the clarifying questions, ensuring that each question targets a specific point of ambiguity to achieve clarity similar to the original problem.
     
@@ -29,7 +29,7 @@
 
     Inconsistent Coding Problem Description: <> 
 
-    When generating these questions, do not reference or mention the original problem description in any way. Frame the clarifying questions as if you have only seen the modified problem description, without acknowledging the existence of the original version.
+    When generating these questions, do not mention the original problem description in any way. Frame the clarifying questions without acknowledging the existence of the original version. 
 
     Please only output the clarifying questions, ensuring that each question targets a specific point of inconsistency to achieve clarity similar to the original problem.
     ``` 
@@ -41,41 +41,36 @@
 
     Incomplete Coding Problem Description: <>
 
-    When generating these questions, do not reference or mention the original problem description in any way. Frame the clarifying questions as if you have only seen the modified problem description, without acknowledging the existence of the original version. 
+    When generating these questions, do not mention the original problem description in any way. Frame the clarifying questions without acknowledging the existence of the original version.
 
     Please only output the clarifying questions, ensuring that each question targets a specific point of incompleteness to achieve clarity similar to the original problem.
     ``` 
 
 - **Code**
-    - We use the `clarify_aware_fine_tuning_v2.py` file, varying the `tokenize_version` argument to test different approaches. 
+    - We use the `clarify_aware_fine_tuning_v2.py` file, varying the `--tokenize_version` argument to test different approaches. 
 
 - **Model**
-    - Our baseline is the `deepseek-ai/deepseek-coder-6.7b-instruct` model. Due to compute restrictions, we can only use the 7B model.
+    - Our baseline is the `deepseek-ai/deepseek-coder-6.7b-instruct` model. Due to compute restrictions, we use the 7B model with PEFT enabled.
 
-<!-- ## Experiment 2 (Integration of "type")
-- **Finetuning Data**: We augment the original dataset by adding the following prefixes to the answer fields:
-    - Original: The problem statement is straightforward and requires no additional information. We can proceed with the implementation without further questions.
-    - Ambiguous: The problem statement is not fully clear, and additional details are needed to proceed effectively. This is an ambiguous problem statement with multiple valid interpretations and unspecified details, requiring clarification.",
-    - Inconsistent: The problem statement is not fully clear, and additional details are needed to proceed effectively. This is an inconsistent problem statement and contains conflicting information that must be clarified.
-    - Incomplete: The problem statement is not fully clear, and additional details are needed to proceed effectively. This is an incomplete problem statement and it lacks some crucial details that need to be filled in to create a complete solution.
+## Tokenizer V1
+- We set the `--tokenize_version` argument to `1`, passing the concatenation of the problem and answer to the model for fine-tuning.
+```
+concatenated_text = samples['problem'] + samples['answer']
+```
 
-- **Code**
-    - We use the `clarify_aware_fine_tuning_v2.py` file with `tokenize_version` argument set to `2`. The only change is: we concatenate `type` field into the final output.
-    ```
-        concatenated_text = samples['problem'] + samples['answer'] + samples['type']
-    ```
-- **Model**
-    - Same as experiment 1, we use the `deepseek-ai/deepseek-coder-6.7b-instruct` model.
+## Tokenizer V2
+- We set the `--tokenize_version` argument to `2`, focusing only on the "answer" part of the dataset while finetuning.
+- Basically, we tokenize both the "problem" and its corresponding "answer" while preparing it for the model, but in the training setup, only the "answer" part is important for computing the loss. The "problem" is provided for context but doesn't contribute to the loss.
 
-## Experiment 3 (Focusing on the "answer")
-- **Finetuning Data**: Same as Experiment 2.
-- **Code**
-    - We use the `clarify_aware_fine_tuning_v2.py` file with `tokenize_version` argument set to `3`. We modify the tokenizer to focus on the `answer` field. We use formatting tokens to help the model learn the association between different problem types and expected outputs. If the problem is unclear (Ambiguous, Incomplete, Inconsistent), then the model is expected to generate clarifying questions, otherwise it should generate code.
-- **Model**
-    - Same as experiment 1, we use the `deepseek-ai/deepseek-coder-6.7b-instruct` model.
+## Tokenizer V3
+- We set the `--tokenize_version` argument to `3`, passing the concatenation of the problem, answer and type to the model for fine-tuning.
+```
+concatenated_text = samples['problem'] + samples['answer'] + samples['type']
+```
 
-## Experiment 4 (R-Tuning Inspired Instruction-Tuning Approach)
-
-## Experiment 5 (CodeQWen Chat Model)
-
-## Experiment 6 (CodeLLaMa: Twice as many parameters : 13B) -->
+## Tokenizer V4 (R-Tuning Inspired Instruction-Tuning Approach)
+- We set the `--tokenize_version` argument to `4`, instruction-tuning the model to effectively classify if the problem requires code or questions, and then generate accordingly.
+- The function uses two different prompts based on the type of sample:
+    - QPROMPT: A constant instruction to the model to act as an expert software developer. This sets up a scenario where the model is expected to either generate code or ask clarifying questions.
+    - APROMPT: A conditional response based on the sample's type (Original or otherwise). If the sample is labeled as "Original," the model is instructed that the problem is clear, and it should directly respond with Python code. Otherwise, the model is instructed to ask clarifying questions before proceeding with code generation.
+- The structured prompts ensure that the model can differentiate between when it should generate code directly and when it should seek further clarification. This controlled format improves the quality of responses during inference, as the model is guided through a clear decision-making process.
