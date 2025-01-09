@@ -1,0 +1,4 @@
+You are the operator of a Centennial Wheel with multiple gondolas, each with a capacity of four people. You can rotate the gondolas counterclockwise, which incurs a cost.
+You are given an array of customer arrivals, where each element represents the number of new customers arriving before a rotation. You must rotate the wheel a certain number of times to accommodate these customers. You can choose to stop the wheel at any time, including before serving all customers. If you stop serving customers, subsequent rotations are free to get all the customers down safely.
+Your goal is to maximize your profit by charging customers a boarding fee when they board the gondola closest to the ground. Customers will exit once that gondola reaches the ground again.
+Return the minimum number of rotations required to maximize your profit. If there is no scenario where the profit is positive, return -1.

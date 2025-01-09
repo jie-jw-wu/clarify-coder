@@ -1,0 +1,9 @@
+Recently, you found a bot to play "Rock paper scissors" with. Unfortunately, the bot uses a simple algorithm to play: he has a string $s = s_1 s_2 \dots s_{n}$ of length $n$ where each letter is either R, S or P.
+
+While initializing, the bot is choosing a starting index $pos$ ($1 \le pos \le n$), and then it can play any number of rounds. In the first round, he chooses "Rock", "Scissors" or "Paper" based on the value of $s_{pos}$:   if $s_{pos}$ is equal to R the bot chooses "Rock";  if $s_{pos}$ is equal to S the bot chooses "Scissors";  if $s_{pos}$ is equal to P the bot chooses "Paper"; 
+
+In the second round, the bot's choice is based on the value of $s_{pos + 1}$ or $s_{pos - 1}$. In the third round — on $s_{pos + 2}$ or $s_{pos - 2}$ and so on. After $s_n$ the bot returns to $s_1$ and continues his game.
+
+You plan to play $n$ rounds and you've already figured out the string $s$ but still don't know what is the starting index $pos$. But since the bot's tactic is so boring, you've decided to find $n$ choices to each round to maximize the average number of wins.
+
+In other words, let's suggest your choices are $c_1 c_2 \dots c_n$ and if the bot starts from index $pos$ then you'll win in $win(pos)$ rounds. Find $c_1 c_2 \dots c_n$ such that $\frac{win(1) + win(2) + \dots + win(n)}{n}$ is maximum possible.

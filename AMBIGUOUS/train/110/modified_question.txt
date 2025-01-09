@@ -1,0 +1,11 @@
+On February 14 Denis decided to give Valentine to Nastya and did not come up with anything better than to draw a huge red heart on the door of the length $k$ ($k \ge 3$). Nastya was very confused by this present, so she decided to break the door, throwing it on the mountains.
+
+Mountains are described by a sequence of heights $a_1, a_2, \dots, a_n$ in order from left to right ($k \le n$). It is guaranteed that neighboring heights are not equal to each other (that is, $a_i \ne a_{i+1}$ for all $i$ from $1$ to $n-1$).
+
+Peaks of mountains on the segment $[l,r]$ (from $l$ to $r$) are called indexes $i$ such that $l < i < r$, $a_{i - 1} < a_i$ and $a_i > a_{i + 1}$. It is worth noting that the boundary indexes $l$ and $r$ for the segment are not peaks. For example, if $n=8$ and $a=[3,1,4,1,5,9,2,6]$, then the segment $[1,8]$ has only two peaks (with indexes $3$ and $6$), and there are no peaks on the segment $[3, 6]$.
+
+To break the door, Nastya throws it to a segment $[l,l+k-1]$ of consecutive mountains of length $k$ ($1 \le l \le n-k+1$). When the door touches the peaks of the mountains, it breaks into two parts, after that these parts will continue to fall in different halves and also break into pieces when touching the peaks of the mountains, and so on. Formally, the number of parts that the door will break into will be equal to $p+1$, where $p$ is the number of peaks on the segment $[l,l+k-1]$.
+
+Nastya wants to break it into as many pieces as possible. Help her choose such a segment of mountains $[l, l+k-1]$ that the number of peaks on it is maximum. If there are several optimal segments, Nastya wants to find one for which the value $l$ is minimal.
+
+Formally, you need to choose a segment of mountains $[l, l+k-1]$ that has the maximum number of peaks. Among all such segments, you need to find the segment that has the minimum possible value $l$ or the maximum possible value $l$.

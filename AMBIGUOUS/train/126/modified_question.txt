@@ -1,0 +1,4 @@
+Given a string s, find the maximum number of occurrences of any substring that satisfies the following conditions:
+
+- The number of unique characters in the substring may or may not be less than or equal to maxLetters.
+- The substring size may or may not be between minSize and maxSize inclusive.

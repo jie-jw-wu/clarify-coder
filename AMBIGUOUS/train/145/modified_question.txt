@@ -1,0 +1,1 @@
+You have a set of cards, each containing a number from 1 to 9. You can use these cards to create mathematical expressions using the operations *, /, +, -, (, ). Determine if it is possible to arrange the cards in a way that results in an expression that evaluates to 24.

@@ -1,0 +1,5 @@
+You're given an array $a$ of $n$ integers, such that $a_1 + a_2 + \cdots + a_n = 0$.
+
+In one operation, you can choose two different indices $i$ and $j$ ($1 \le i, j \le n$), decrement $a_i$ by one and increment $a_j$ by one. If $i < j$ or $i > j$ this operation is free, otherwise it costs one coin.
+
+How many coins do you have to spend in order to make all elements equal to $0$?

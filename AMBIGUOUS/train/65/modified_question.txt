@@ -1,0 +1,11 @@
+You and your friend are playing a game with a series of challenges. There are $n$ challenges, numbered from $1$ to $n$. Each challenge has a difficulty level, which can be either easy or hard.
+
+During one session, either you or your friend can complete one or more challenges. However, your friend has a limitation: they can only complete easy challenges. To complete hard challenges, they can use skip points. One skip point can be used to complete one hard challenge.
+
+Your task is to find the minimum number of skip points your friend needs to use so that you and your friend can complete all $n$ challenges in the given order.
+
+For example: suppose $n = 8$, and the difficulty levels are given by $a = [1, 0, 1, 1, 0, 1, 1, 1]$. Then one possible course of action is:
+
+  your friend completes the first two challenges, using one skip point for the first challenge;  you complete the third and fourth challenges;  your friend completes the fifth challenge;  you complete the sixth and seventh challenges;  your friend completes the last challenge, using one skip point, so the tower is completed using two skip points. 
+
+You have to answer $t$ independent test cases.

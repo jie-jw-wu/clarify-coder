@@ -1,0 +1,19 @@
+Polycarp lives on the coordinate axis $Ox$ and travels from one point to another. It moves uniformly rectilinearly at a speed of one unit of distance per minute.
+
+On the axis $Ox$ at some point, the base station of the mobile operator is placed. It is known that the radius of its coverage is $r$. Thus, if Polycarp is at a distance less than or equal to $r$ from the base station, then he is in the network coverage area, otherwise — no. The base station can be located both on the route of Polycarp and outside it.
+
+Print the time in minutes during which Polycarp will not be in the coverage area of the network, with a rectilinear uniform movement from one point to another. His speed — one unit of distance per minute.
+
+
+-----Input-----
+
+The first line contains a positive integer $t$ ($1 \le t \le 1000$) — the number of test cases. In the following lines are written $t$ test cases.
+
+The description of each test case is one line, which contains four integers $a$, $b$, $c$ and $r$ ($-10^8 \le a,b,c \le 10^8$, $0 \le r \le 10^8$) — the coordinates of the starting and ending points of the path, the base station, and its coverage radius, respectively.
+
+Any of the numbers $a$, $b$ and $c$ can be equal (either any pair or all three numbers). The base station can be located both on the route of Polycarp and outside it.
+
+
+-----Output-----
+
+Print $t$ numbers — answers to given test cases in the order they are written in the test. Each answer is an integer — the number of minutes during which Polycarp will be unavailable during his movement.

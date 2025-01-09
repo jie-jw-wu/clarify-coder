@@ -1,0 +1,7 @@
+Alice and Bob play a game with a binary string $s$. They take turns deleting consecutive characters from the string, with the goal of maximizing their score. The score is determined by the number of $1$-characters deleted.
+
+During their turn, a player can choose any number of consecutive characters in $s$ and delete them. The characters to the left and to the right of the removed block become adjacent.
+
+The game ends when the string becomes empty.
+
+Calculate the resulting score of Alice.

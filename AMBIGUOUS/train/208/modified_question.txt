@@ -1,0 +1,13 @@
+In the realm of Dota2, there are two factions: the Radiant and the Dire.
+
+The Dota2 council comprises representatives from both factions. The council seeks to enact a change in the Dota2 game through a series of rounds. During each round, each representative may exercise one of two privileges:
+
+- Veto a representative's privilege: A representative may revoke another representative's ability to participate in the current and subsequent rounds.
+- Declare victory: If a representative determines that all remaining representatives with privileges belong to the same faction, they may declare victory and implement the proposed change.
+
+Given a sequence of characters representing the faction affiliation of each representative, where 'R' denotes Radiant and 'D' denotes Dire, determine which faction will ultimately declare victory and enact the change. The sequence may contain an unspecified number of characters.
+
+Note:
+
+- The sequence may contain multiple valid interpretations.
+- The representatives are assumed to act strategically to maximize their faction's chances of victory.

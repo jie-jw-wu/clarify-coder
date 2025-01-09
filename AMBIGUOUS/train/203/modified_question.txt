@@ -1,0 +1,3 @@
+A robot is located at a starting point in a grid. The robot can move in any direction (up, down, left, or right) at any point in time. The robot is trying to reach a destination point in the grid.
+
+How many possible unique paths are there?

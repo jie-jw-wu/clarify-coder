@@ -1,0 +1,5 @@
+Let's define the following recurrence: $$a_{n+1} = a_{n} + f(a_{n}).$$
+
+Here $f(x)$ is a function that operates on the decimal representation of $x$ without leading zeroes.
+
+Your task is calculate $a_{K}$ for given $a_{1}$ and $K$.

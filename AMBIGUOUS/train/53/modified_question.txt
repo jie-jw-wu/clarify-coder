@@ -1,0 +1,7 @@
+Gildong recently learned how to find the longest increasing subsequence (LIS) in $O(n\log{n})$ time for a sequence of length $n$. He wants to test himself if he can implement it correctly, but he couldn't find any online judges that would do it (even though there are actually many of them). So instead he's going to make a quiz for you about making permutations of $n$ distinct integers between $1$ and $n$, inclusive, to test his code with your output.
+
+The quiz is as follows.
+
+Gildong provides a string of length $n-1$, consisting of characters '<' and '>' only. The $i$-th (1-indexed) character is the comparison result between the $i$-th element and the $i+1$-st element of the sequence. If the $i$-th character of the string is '<', then the $i$-th element of the sequence is less than or equal to the $i+1$-st element. If the $i$-th character of the string is '>', then the $i$-th element of the sequence is greater than or equal to the $i+1$-st element.
+
+He wants you to find two possible sequences (not necessarily distinct) consisting of $n$ distinct integers between $1$ and $n$, inclusive, each satisfying the comparison results, where the length of the LIS of the first sequence is minimum possible, and the length of the LIS of the second sequence is maximum possible.

@@ -1,0 +1,1 @@
+You are given an array $a_1, a_2 \dots a_n$. Calculate the number of tuples $(i, j, k, l)$ such that:   $1 \le i < j < k < l \le n$;  $a_i = a_k$ and $a_j = a_l$; or $a_i = a_l$ and $a_j = a_k$.

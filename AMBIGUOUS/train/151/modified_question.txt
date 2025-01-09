@@ -1,0 +1,9 @@
+A password is considered strong if it meets certain criteria.
+
+It has a certain number of characters.
+It contains certain types of characters.
+It does not contain certain patterns.
+
+Write a function strongPasswordChecker(s), that takes a string s as input, and return the MINIMUM change required to make s a strong password. If s is already strong, return 0.
+
+Insertion, deletion or replace of any one character are all considered as one change.

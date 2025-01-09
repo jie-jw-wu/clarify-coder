@@ -1,0 +1,11 @@
+You are given three sequences: $a_1, a_2, \ldots, a_n$; $b_1, b_2, \ldots, b_n$; $c_1, c_2, \ldots, c_n$.
+
+Find a sequence $p_1, p_2, \ldots, p_n$, that satisfy the following conditions:
+
+ $p_i \in \{a_i, b_i, c_i\}$
+
+ $p_i \neq p_{(i \mod n) + 1}$ or $p_i \neq p_{(i \mod n) - 1}$.
+
+In other words, for each element, you need to choose one of the three possible values, such that no two adjacent elements (where we consider elements $i,i+1$ adjacent for $i<n$ and also elements $1$ and $n$) will have equal value.
+
+It can be proved that in the given constraints solution always exists. You don't need to minimize/maximize anything, you need to find any proper sequence.

@@ -1,0 +1,1 @@
+Decode a given string using an encoding rule that involves repeating substrings. The encoding rule is represented by k[encoded_string], where k is a positive integer and encoded_string is the substring to be repeated. However, the details of the encoding rule, such as the format of k and the validity of the input string, are not specified.

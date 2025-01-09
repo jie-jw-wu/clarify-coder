@@ -1,0 +1,29 @@
+A string S of lowercase letters is given.  Then, we may make any number of moves.
+In each move, we choose one of the first K letters (starting from the left), remove it, and place it at the end of the string.
+Return the lexicographically smallest string we could have after any number of moves, or the lexicographically largest string we could have after any number of moves.
+ 
+
+Example 1:
+Input: S = "cba", K = 1
+Output: "acb" or "bac"
+Explanation: 
+In the first move, we move the 1st character ("c") to the end, obtaining the string "bac".
+In the second move, we move the 1st character ("b") to the end, obtaining the final result "acb".
+Or, in the first move, we move the 1st character ("c") to the end, obtaining the string "bac".
+In the second move, we move the 2nd character ("a") to the end, obtaining the final result "bac".
+
+
+Example 2:
+Input: S = "baaca", K = 3
+Output: "aaabc" or "caaba"
+Explanation: 
+In the first move, we move the 1st character ("b") to the end, obtaining the string "aacab".
+In the second move, we move the 3rd character ("c") to the end, obtaining the final result "aaabc".
+Or, in the first move, we move the 2nd character ("a") to the end, obtaining the string "baca".
+In the second move, we move the 3rd character ("c") to the end, obtaining the final result "caaba".
+
+ 
+Note:
+
+1 <= K <= S.length <= 1000
+S consists of lowercase letters only.

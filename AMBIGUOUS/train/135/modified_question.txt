@@ -1,0 +1,1 @@
+Given two sequences pushed and popped with distinct values, determine if it is possible to obtain popped by performing a series of push and pop operations on an initially empty stack, where each element in pushed is pushed onto the stack and each element in popped is popped from the stack.

@@ -1,0 +1,1 @@
+Find the number of triples of indices (i, j, k) in an array of integers A such that certain conditions are met. The conditions may involve bitwise operations or other unspecified details.

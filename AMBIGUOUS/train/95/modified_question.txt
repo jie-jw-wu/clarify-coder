@@ -1,0 +1,7 @@
+Find an integer $s$ that meets the following criteria:
+
+- $s$ is a positive integer with $n$ digits.
+- No digit in $s$ is equal to $0$.
+- $s$ is not divisible by any of its digits.
+
+If multiple solutions exist, print any one of them. If no solution exists, print "-1".

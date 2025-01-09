@@ -1,0 +1,1 @@
+Find the index of a target value in a sorted array that may have been rotated at an unknown pivot point. The array may contain multiple valid interpretations of the rotation, and some details about the array may be unspecified.

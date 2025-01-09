@@ -1,0 +1,7 @@
+You're given an array $a_1, \ldots, a_n$ of $n$ non-negative integers.
+
+Let's call it sharpened if and only if there exists an integer $1 \le k \le n$ such that $a_1 < a_2 < \ldots < a_k$ and $a_k > a_{k+1} > \ldots > a_n$. In particular, any strictly increasing or strictly decreasing array is sharpened. For example:  The arrays $[4]$, $[0, 1]$, $[12, 10, 8]$ and $[3, 11, 15, 9, 7, 4]$ are sharpened;  The arrays $[2, 8, 2, 8, 6, 5]$, $[0, 1, 1, 0]$ and $[2, 5, 6, 9, 8, 8]$ are not sharpened. 
+
+You can do the following operation as many times as you want: choose any element of the array, and decrease it by one. Formally, you can choose any $i$ ($1 \le i \le n$) and assign $a_i := a_i - 1$.
+
+Tell if it's possible to make the given array sharpened using some number (possibly zero) of these operations.

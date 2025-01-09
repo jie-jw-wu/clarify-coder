@@ -1,0 +1,7 @@
+Ashish and Vivek play a game on a matrix consisting of $n$ rows and $m$ columns, where they take turns claiming cells. Unclaimed cells are represented by $0$, while claimed cells are represented by $1$. The initial state of the matrix is given. There can be some claimed cells in the initial state.
+
+In each turn, a player must claim a cell. A cell may be claimed if it is unclaimed and does not share a row or column with any other already claimed cells. When a player is unable to make a move, he loses and the game ends.
+
+If Ashish and Vivek take turns to move and Ashish goes first, determine the winner of the game if both of them are playing optimally or if one of them makes a mistake.
+
+Optimal play between two players means that both players choose the best possible strategy to achieve the best possible outcome for themselves.

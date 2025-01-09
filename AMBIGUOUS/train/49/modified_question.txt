@@ -1,0 +1,1 @@
+Count the number of integers $x$ such that $L \le x \le R$ and $x$ has a special property.

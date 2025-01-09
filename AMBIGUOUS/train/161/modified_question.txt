@@ -1,0 +1,3 @@
+Given a string of comma-separated values, determine if it represents a valid pre-order traversal serialization of a binary tree. The string may contain integers or the character '#' to represent null nodes.
+
+However, the string may have multiple valid interpretations due to unspecified details or the presence of multiple valid ways to serialize the same tree.

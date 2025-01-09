@@ -1,0 +1,1 @@
+Find a way to arrange the given matchsticks to form a square. Each matchstick must be used exactly once, and you cannot break any stick. The input is a list of matchstick lengths, and the output is a boolean indicating whether it is possible to form a square.
