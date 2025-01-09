@@ -1,7 +1,0 @@
-You are given three strings $a$, $b$ and $c$ of the same length $n$. The strings consist of lowercase English letters only. The $i$-th letter of $a$ is $a_i$, the $i$-th letter of $b$ is $b_i$, the $i$-th letter of $c$ is $c_i$.
-
-For every $i$ ($1 \leq i \leq n$) you must swap (i.e. exchange) $c_i$ with either $a_i$ or $b_i$ or leave it unchanged. So in total you'll perform exactly $n$ swap operations, each of them either $c_i \leftrightarrow a_i$, $c_i \leftrightarrow b_i$, or $c_i \leftrightarrow c_i$ ($i$ iterates over all integers between $1$ and $n$, inclusive).
-
-For example, if $a$ is "code", $b$ is "true", and $c$ is "help", you can make $c$ equal to "crue" taking the $1$-st and the $4$-th letters from $a$ and the others from $b$. In this way $a$ becomes "hodp" and $b$ becomes "tele".
-
-Is it possible that after these swaps the string $a$ becomes exactly the same as the string $b$?

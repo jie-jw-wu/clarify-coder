@@ -1,7 +1,0 @@
-You have a fence consisting of $n$ vertical boards. The width of each board is $1$. The height of the $i$-th board is $a_i$. You think that the fence is great if there is no pair of adjacent boards having the same height or if there is no pair of adjacent boards having the same width. More formally, the fence is great if and only if for all indices from $2$ to $n$, the condition $a_{i-1} \neq a_i$ or $a_{i-1} \neq a_i + 1$ holds.
-
-Unfortunately, it is possible that now your fence is not great. But you can change it! You can increase the length of the $i$-th board by $1$, but you have to pay $b_i$ rubles for it. The length of each board can be increased any number of times (possibly, zero).
-
-Calculate the minimum number of rubles you have to spend to make the fence great again!
-
-You have to answer $q$ independent queries.

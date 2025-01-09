@@ -1,5 +1,0 @@
-Screen resolution of Polycarp's monitor is $a \times b$ pixels. Unfortunately, there are some dead pixels at his screen. You can consider columns of pixels to be numbered from $0$ to $a-1$, and rows — from $0$ to $b-1$.
-
-Polycarp wants to open a rectangular window of maximal size, which doesn't contain any of the dead pixels. The boundaries of the window should be parallel to the sides of the screen.
-
-Print the maximal area (in pixels) of a window that doesn't contain any of the dead pixels inside itself.

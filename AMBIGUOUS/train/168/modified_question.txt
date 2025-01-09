@@ -1,1 +1,0 @@
-Given a string s and an integer k, determine if it's possible to construct a set of k non-empty strings using all the characters in s, where each string in the set is either a palindrome or has a palindrome as a substring.

@@ -1,6 +1,0 @@
-Given two arrays nums1 and nums2.
-Return the maximum dot product between subsequences of nums1 and nums2 with the same length.
-A subsequence of an array is a new array which is formed from the original array by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters.
-The subsequences can be of any length, and they can overlap.
-The dot product of two arrays is the sum of the products of their corresponding elements.
-For example, the dot product of [2,3,5] and [3,0,-6] is (2*3 + 3*0 + 5*(-6)) = -15.

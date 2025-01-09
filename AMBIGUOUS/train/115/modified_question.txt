@@ -1,5 +1,0 @@
-Polycarp plays a computer game where he fights monsters using magic spells.
-
-There are two types of spells: fire spells and lightning spells. Each spell has a power, which determines the damage it deals to the monster. Polycarp can cast each spell only once per battle, but he can cast them in any order.
-
-After each battle, Polycarp's spell set may change. He may learn new spells or forget old ones. After each change, calculate the maximum possible damage Polycarp may deal using the spells he knows.

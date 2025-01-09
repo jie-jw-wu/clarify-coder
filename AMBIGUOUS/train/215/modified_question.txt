@@ -1,1 +1,0 @@
-Given an array of positive integers, determine if it is possible to select a subset of elements and multiply each element by an integer such that the sum of the resulting values is equal to 1. The array is considered "good" if this is possible, and "bad" otherwise.

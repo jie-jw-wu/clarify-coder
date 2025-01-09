@@ -1,1 +1,0 @@
-Given two strings, find the length of their longest common sequence. A sequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters. A common sequence of two strings is a sequence that is common to both strings. If there is no common sequence, return 0.

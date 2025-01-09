@@ -1,3 +1,0 @@
-Given a permutation $p$ of length $n$, find its subsequence $s_1$, $s_2$, $\ldots$, $s_k$ of length at least $2$ such that:  $|s_1-s_2|+|s_2-s_3|+\ldots+|s_{k-1}-s_k|$ is as big as possible over all subsequences of $p$ with length at least $2$.  Among all such subsequences, choose the one whose length, $k$, is as small as possible or as big as possible. 
-
-If multiple subsequences satisfy these conditions, you are allowed to find any of them.

@@ -1,5 +1,0 @@
-Berland year consists of $m$ months with $d$ days each. Months are numbered from $1$ to $m$. Berland week consists of $w$ days. The first day of the year is also the first day of the week. Note that the last week of the year might be shorter than $w$ days.
-
-A pair $(x, y)$ such that $x < y$ is ambiguous if day $x$ of month $y$ is the same day of the week as day $y$ of month $x$ or if day $x$ of month $y$ is the same day of the week as day $y$ of month $x$ plus or minus some number of days.
-
-Count the number of ambiguous pairs.

@@ -1,7 +1,0 @@
-Polycarp plays a computer game where he can summon armies of magical minions to fight each other.
-
-Polycarp has a set of $n$ minions, each with an initial power level of $a_i$ and a power boost of $b_i$ that is applied to all previously summoned minions when it is summoned. He can summon minions in any order, but he can only have a maximum of $k$ minions under his control at any time.
-
-Polycarp's goal is to maximize the sum of power levels of all minions under his control. He can summon and destroy minions as needed, but each minion can only be summoned or destroyed once.
-
-Help Polycarp find a plan of actions to summon the strongest possible army, or determine if it is impossible to do so.

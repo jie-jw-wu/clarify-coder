@@ -1,9 +1,0 @@
-Arthur owns a ski resort on a mountain. There are $n$ landing spots on the mountain numbered from $1$ to $n$ from the top to the foot of the mountain. The spots are connected with one-directional ski tracks. All tracks go towards the foot of the mountain, so there are no directed cycles formed by the tracks. There are at most two tracks leaving each spot, but many tracks may enter the same spot.
-
-A skier can start skiing from one spot and stop in another spot if there is a sequence of tracks that lead from the starting spot and end in the ending spot. Unfortunately, recently there were many accidents, because the structure of the resort allows a skier to go through dangerous paths, by reaching high speed and endangering himself and the other customers. Here, a path is called dangerous, if it consists of at least two tracks or if it passes through a spot that has been closed.
-
-Arthur wants to secure his customers by closing some of the spots in a way that there are no dangerous paths in the resort. When a spot is closed, all tracks entering and leaving that spot become unusable. 
-
-Formally, after closing some of the spots, there should not be a path that consists of two or more tracks or that passes through a closed spot.
-
-Arthur doesn't want to close too many spots. He will be happy to find any way to close at most $\frac{4}{7}n$ spots so that the remaining part is safe. Help him find any suitable way to do so.

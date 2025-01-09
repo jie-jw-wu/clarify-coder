@@ -1,1 +1,0 @@
-Given an array of integers, determine if there exist two distinct indices i and j in the array such that the absolute difference between nums[i] and nums[j] is within a certain range, and the absolute difference between i and j is also within a certain range.

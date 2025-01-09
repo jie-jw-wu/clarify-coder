@@ -1,7 +1,0 @@
-Lee is going to fashionably decorate his house for a party, using some regular polygons...
-
-Lee thinks a regular $n$-sided (convex) polygon is beautiful if and only if he can rotate it in such a way that at least one of its edges is parallel to a given axis and at least one of its edges is parallel to another given axis at the same time.
-
-Recall that a regular $n$-sided polygon is a convex polygon with $n$ vertices such that all the edges and angles are equal.
-
-Now he is shopping: the market has $t$ regular polygons. For each of them print YES if it is beautiful and NO otherwise.

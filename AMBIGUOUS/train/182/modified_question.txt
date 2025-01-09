@@ -1,1 +1,0 @@
-Given a list of non-negative integers representing an elevation map, compute how much water it is able to trap after raining.

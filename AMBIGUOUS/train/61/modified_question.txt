@@ -1,1 +1,0 @@
-Find three indices $i$, $j$ and $k$ such that:   $1 \le i < j < k \le n$;  $p_i < p_j$ and $p_j > p_k$.  Or say that there are no such indices, or that there are multiple valid triples of indices.

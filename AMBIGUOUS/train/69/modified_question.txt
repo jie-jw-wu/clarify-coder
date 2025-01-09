@@ -1,9 +1,0 @@
-Bertown is a city with a number of buildings in a straight line.
-
-The city's security service discovered that some buildings were mined. A map was compiled, which is a string of characters, where each character represents a building.
-
-Bertown's best sapper knows how to activate mines so that the buildings above them are not damaged. When a mine under a building is activated, it explodes and may activate other mines under adjacent buildings. The sapper can also place mines under buildings if they weren't there.
-
-The sapper can carry out operations in any order.
-
-You want to blow up all the mines in the city to make it safe. Find the minimum number of coins that the sapper will have to pay so that after his actions there are no mines left in the city.

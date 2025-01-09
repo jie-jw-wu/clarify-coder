@@ -1,7 +1,0 @@
-An agent called Cypher is decrypting a message, that contains a composite number $n$. All divisors of $n$, which are greater than $1$, are placed in a circle. Cypher can choose the initial order of numbers in the circle.
-
-In one move Cypher can choose two adjacent numbers in a circle and insert their least common multiple between them. He can do that move as many times as needed.
-
-A message is decrypted, if every two adjacent numbers are not coprime. Note that for such constraints it's always possible to decrypt the message.
-
-Find the minimal number of moves that Cypher should do to decrypt the message, and show the initial order of numbers in the circle for that. However, it is possible that there are multiple valid initial orders that lead to the same minimal number of moves. In this case, output any of them.

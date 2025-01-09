@@ -1,1 +1,0 @@
-Given an array of integers, find the length of the longest contiguous subarray that satisfies certain conditions. The subarray should have a length of at least 3 and should have a peak element at some index i, where the elements to the left of i are strictly increasing and the elements to the right of i are strictly decreasing. If there is no such subarray, return 0.
