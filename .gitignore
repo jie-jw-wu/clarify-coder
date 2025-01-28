@@ -1,2 +1,4 @@
 APPS/
 AMBIGUOUS/
+combined_finetuning_data/
+venv/
