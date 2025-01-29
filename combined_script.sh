@@ -1,6 +1,6 @@
 #!/bin/bash
 
-API_KEY="AIzaSyCY4uluK4pKExdm4UwsYqO_Q7hDXAY2RfY"
+API_KEY="<ENTER_GEMINI_API_KEY>"
 INPUT="APPS/train"
 TYPE="ambiguous"  # Choose either "ambiguous", "inconsistent" or "incomplete"
 OUTPUT1="AMBIGUOUS/train/modified_ambiguous_train.jsonl"

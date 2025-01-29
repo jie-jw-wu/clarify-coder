@@ -2,12 +2,15 @@ import json
 import random
 from pathlib import Path
 
-
+"""
+    Splits .jsonl file into original data and other data and then combines them according to ratio
+"""
 def split_and_save_jsonl(file_path, output_dir, ratio):
     with open(file_path, 'r') as f:
         data = [json.loads(line) for line in f]
-
+    # extracts original data
     original_data = [item for item in data if item.get('type') == "Original"]
+    # extracts everything except original data
     other_data = [item for item in data if item.get('type') != "Original"]
 
     total_samples = len(original_data) + len(other_data)
@@ -16,9 +19,11 @@ def split_and_save_jsonl(file_path, output_dir, ratio):
     selected_original = random.sample(original_data, min(original_count, len(original_data)))
     selected_other = random.sample(other_data, min(other_count, len(original_data)))
 
+    # combines the original data and the other data and then shuffles them 
     combined_data = selected_original + selected_other
     random.shuffle(combined_data)
 
+    # Makes the output directory where the .jsonl files will be stored
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     output_file = Path(output_dir) / f"split_{ratio[0]}_{ratio[1]}.jsonl"
@@ -33,5 +38,5 @@ input_file = "FINAL_finetuning_everything.jsonl"
 output_dir = "output_splits"
 # Change desired ratio to what you want. 
 desired_ratio = (20,80)
-
+# Function call
 split_and_save_jsonl(input_file, output_dir, desired_ratio)
