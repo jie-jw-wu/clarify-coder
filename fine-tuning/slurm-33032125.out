@@ -1,0 +1,11 @@
+we are in dir /home/jie/clarify-aware-coder/fine-tuning
+usage: clarify_aware_fine_tuning_v2.py [-h] --model_name_or_path
+                                       MODEL_NAME_OR_PATH
+                                       [--finetune_method FINETUNE_METHOD]
+                                       [-m MODEL] [--use_int8] [--use_fp16]
+                                       --dataset_path DATASET_PATH
+                                       --finetuned_model_path
+                                       FINETUNED_MODEL_PATH
+                                       [--checkpoint CHECKPOINT] --output_dir
+                                       OUTPUT_DIR
+clarify_aware_fine_tuning_v2.py: error: the following arguments are required: --output_dir
