@@ -25,7 +25,6 @@ from safetensors.torch import load_file
 ## https://colab.research.google.com/drive/14xo6sj4dARk8lXZbOifHEn1f_70qNAwy?usp=sharing
 ## https://huggingface.co/blog/peft
 ## https://github.com/ragntune/code-llama-finetune/tree/main?tab=readme-ov-file
-
 def merge_columns(example):
     example["prediction"] = example["quote"] + " ->: " + str(example["tags"])
     return example
