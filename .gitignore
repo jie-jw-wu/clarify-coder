@@ -2,5 +2,5 @@ APPS/
 AMBIGUOUS/
 combined_finetuning_data/
 venv/
-ClarifyCoder__Instructing_CodeLLM_to_Ask_Clarifying_Questions.pdf
 data_ratio_test.py
+data_ratio_fine_tuning.py
