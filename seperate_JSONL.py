@@ -17,7 +17,7 @@ def split_and_save_jsonl(file_path, output_dir, ratio):
     original_count = int(ratio[0]/100 * total_samples)
     other_count = int((ratio[1]/100) * total_samples)
     selected_original = random.sample(original_data, min(original_count, len(original_data)))
-    selected_other = random.sample(other_data, min(other_count, len(original_data)))
+    selected_other = random.sample(other_data, min(other_count, len(other_data)))
 
     # combines the original data and the other data and then shuffles them 
     combined_data = selected_original + selected_other
