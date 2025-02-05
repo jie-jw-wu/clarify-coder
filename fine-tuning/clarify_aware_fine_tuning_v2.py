@@ -76,7 +76,7 @@ def tokenize_v2(samples):
     result = tokenizer(
         concatenated_text,
         truncation=True,
-        max_length=512,
+        max_length=2048,
         padding=False,
         return_tensors=None,
     )
@@ -299,7 +299,7 @@ training_args = TrainingArguments(
         per_device_train_batch_size=per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
         warmup_steps=100,
-        max_steps=2000,
+        max_steps=500,
         learning_rate=1e-5,#5e-4,
         fp16=True,
         logging_steps=10,
