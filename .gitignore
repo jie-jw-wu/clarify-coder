@@ -1,5 +1,3 @@
 APPS/
 AMBIGUOUS/
 venv/
-data_ratio_test.py
-data_ratio_fine_tuning.py
