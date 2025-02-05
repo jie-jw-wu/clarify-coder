@@ -26,12 +26,15 @@ def split_and_save_jsonl(file_path, output_dir, ratio):
 
     # If we need more original data than what we currently have:
     if original_count > max_original:
-        other_count = min(max_other, other_count + (original_count - max_original))
-        original_count = max_original
+        selected_original = random.choices(original_data, k=original_count)  # Oversample 
+    else:
+        selected_original = random.sample(original_data, min(original_count, len(original_data)))  # Downsample 
+
     # If we need more other data than what we currently have:
     if other_count > max_other:
-        original_count = min(max_original, original_count + (other_count - max_other))
-        other_count = max_other
+        selected_other = random.choices(other_data, k=other_count)  # Oversample 
+    else:
+        selected_other = random.sample(other_data, min(other_count, len(other_data))) # Downsample
 
     selected_original = random.sample(
         original_data, min(original_count, len(original_data)))
