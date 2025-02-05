@@ -5,9 +5,13 @@ from pathlib import Path
 """
     Splits .jsonl file into original data and other data and then combines them according to ratio
 """
+def oversample_data(data, target_count):
+    return random.choices(data, k=target_count) if target_count > len(data) else random.sample(data, target_count)
 
+def downsample_data(data, target_count):
+    return random.sample(data, min(target_count, len(data)))
 
-def split_and_save_jsonl(file_path, output_dir, ratio):
+def split_and_save_jsonl(file_path, output_dir, ratio, sampling_mode):
     with open(file_path, 'r') as f:
         data = [json.loads(line) for line in f]
     # extracts original data
@@ -24,22 +28,15 @@ def split_and_save_jsonl(file_path, output_dir, ratio):
     original_count = int(ratio[0]/100 * total_samples)
     other_count = int((ratio[1]/100) * total_samples)
 
-    # If we need more original data than what we currently have:
-    if original_count > max_original:
-        selected_original = random.choices(original_data, k=original_count)  # Oversample 
+    if sampling_mode == "oversample":
+        selected_original = oversample_data(original_data, original_count)
+        selected_other = oversample_data(other_data, other_count)
+    elif sampling_mode == "downsample":
+        selected_original = downsample_data(original_data, original_count)
+        selected_other = downsample_data(other_data, other_count)
     else:
-        selected_original = random.sample(original_data, min(original_count, len(original_data)))  # Downsample 
-
-    # If we need more other data than what we currently have:
-    if other_count > max_other:
-        selected_other = random.choices(other_data, k=other_count)  # Oversample 
-    else:
-        selected_other = random.sample(other_data, min(other_count, len(other_data))) # Downsample
-
-    selected_original = random.sample(
-        original_data, min(original_count, len(original_data)))
-    selected_other = random.sample(
-        other_data, min(other_count, len(other_data)))
+        raise ValueError("Invalid sampling_mode. Choose 'oversample' or 'downsample'.")
+    
 
     # combines the original data and the other data and then shuffles them
     combined_data = selected_original + selected_other
@@ -48,7 +45,7 @@ def split_and_save_jsonl(file_path, output_dir, ratio):
     # Makes the output directory where the .jsonl files will be stored
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-    output_file = Path(output_dir) / f"split_{ratio[0]}_{ratio[1]}.jsonl"
+    output_file = Path(output_dir) / f"split_{ratio[0]}_{ratio[1]}_{sampling_mode}.jsonl"
     with open(output_file, 'w') as f:
         for item in combined_data:
             f.write(json.dumps(item) + '\n')
@@ -59,6 +56,7 @@ def split_and_save_jsonl(file_path, output_dir, ratio):
 input_file = "FINAL_finetuning_everything.jsonl"
 output_dir = "output_splits"
 # Change desired ratio to what you want.
-desired_ratio = (20, 80)
+desired_ratio = (40, 60)
 # Function call
-split_and_save_jsonl(input_file, output_dir, desired_ratio)
+split_and_save_jsonl(input_file, output_dir, desired_ratio, "oversample")
+split_and_save_jsonl(input_file, output_dir, desired_ratio, "downsample")
