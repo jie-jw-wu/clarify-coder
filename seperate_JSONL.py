@@ -56,7 +56,7 @@ def split_and_save_jsonl(file_path, output_dir, ratio, sampling_mode):
 input_file = "FINAL_finetuning_everything.jsonl"
 output_dir = "output_splits"
 # Change desired ratio to what you want.
-desired_ratio = (40, 60)
+desired_ratio = (20, 80)
 # Function call
 split_and_save_jsonl(input_file, output_dir, desired_ratio, "oversample")
 split_and_save_jsonl(input_file, output_dir, desired_ratio, "downsample")
