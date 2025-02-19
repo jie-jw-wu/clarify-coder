@@ -10,3 +10,4 @@ datasets
 pyarrow
 torchvision
 torchaudio
+torchtune
