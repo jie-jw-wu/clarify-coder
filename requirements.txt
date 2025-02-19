@@ -1,0 +1,12 @@
+tqdm
+google-generativeai
+torch 
+transformers 
+datasets 
+peft 
+scikit-learn 
+safetensors
+datasets
+pyarrow
+torchvision
+torchaudio
