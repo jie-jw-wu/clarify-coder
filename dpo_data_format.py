@@ -23,18 +23,18 @@ def generate_worse_answer(correct_answer, type):
     else:
         prompt = ("Analyze the following code and generate clarifying questions that help identify ambiguities, edge cases, or missing details in its functionality, logic, or intended use.")
         response = model.generate_content(prompt)
-        print("Clarifying Questions: ", response.text)
-    
+
     return response.text if response.text else "Error generating incorrect code"
 
 with open(input_file, "r", encoding="utf-8") as f:
-    for line in f:
+    for i, line in enumerate(f):
+        if i >= 5:
+            break
         data = json.loads(line)
         
         if "problem" in data and "answer" in data:
             prompt = f"Problem: {data['problem']}\n\nSolution:"
             chosen = data["answer"]
-            # print(data['type'])
             rejected = generate_worse_answer(chosen, data['type'])  
 
             formatted_entry = {
