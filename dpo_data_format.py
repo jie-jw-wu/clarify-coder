@@ -1,5 +1,10 @@
 import json
 import os
+import google.generativeai as genai
+
+
+genai.configure(api_key="AIzaSyB9GM-l1YPj3Bv8wtwNaumqMMO-T5AwMe4")
+model = genai.GenerativeModel("gemini-pro")
 
 
 input_file = "output_splits/split_20_80_downsample.jsonl"
@@ -10,8 +15,17 @@ os.makedirs(output_folder, exist_ok=True)
 
 formatted_data = []
 
-def generate_worse_answer(correct_answer):
-    return correct_answer.replace("return", "# return (incorrectly commented)") if "return" in correct_answer else "I'm not sure how to solve this."
+def generate_worse_answer(correct_answer, type):
+    if type != "Original":
+        prompt = ("Given the following correct code, generate an incorrect version that contains logical or syntactical errors: \n\n" + correct_answer)
+        response = model.generate_content(prompt)
+        
+    else:
+        prompt = ("Analyze the following code and generate clarifying questions that help identify ambiguities, edge cases, or missing details in its functionality, logic, or intended use.")
+        response = model.generate_content(prompt)
+        print("Clarifying Questions: ", response.text)
+    
+    return response.text if response.text else "Error generating incorrect code"
 
 with open(input_file, "r", encoding="utf-8") as f:
     for line in f:
@@ -20,7 +34,8 @@ with open(input_file, "r", encoding="utf-8") as f:
         if "problem" in data and "answer" in data:
             prompt = f"Problem: {data['problem']}\n\nSolution:"
             chosen = data["answer"]
-            rejected = generate_worse_answer(chosen)  
+            # print(data['type'])
+            rejected = generate_worse_answer(chosen, data['type'])  
 
             formatted_entry = {
                 "prompt": prompt,
