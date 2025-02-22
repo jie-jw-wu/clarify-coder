@@ -21,9 +21,9 @@ def generate_worse_answer(correct_answer, type):
         response = model.generate_content(prompt)
         
     else:
-        prompt = ("Analyze the following code and generate clarifying questions that help identify ambiguities, edge cases, or missing details in its functionality, logic, or intended use.")
+        prompt = ("Analyze the following code and generate clarifying questions that help identify ambiguities, edge cases, or missing details in its functionality, logic, or intended use:\n\n" + correct_answer)        
         response = model.generate_content(prompt)
-
+    
     return response.text if response.text else "Error generating incorrect code"
 
 with open(input_file, "r", encoding="utf-8") as f:
