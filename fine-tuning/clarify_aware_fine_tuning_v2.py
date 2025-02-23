@@ -76,7 +76,7 @@ def tokenize_v2(samples):
     result = tokenizer(
         concatenated_text,
         truncation=True,
-        max_length=512,
+        max_length=2048, # changed from 512 to 2048 to try v2 (accommodate the longer prompt). Previously trying v2 was unseccessful due to unknown reason
         padding=False,
         return_tensors=None,
     )
@@ -124,7 +124,7 @@ def tokenize_v4(samples):
     result = tokenizer(
         concatenated_text,
         truncation=True,
-        max_length=2048,
+        max_length=2048, 
         padding=False,
         return_tensors=None,
     )
@@ -222,7 +222,7 @@ tokenizer.padding_side = "left"
 # TODO: Load the dataset
 # https://github.com/huggingface/datasets/issues/824#issuecomment-758358089
 # data = load_dataset("Abirate/english_quotes")
-data = load_dataset('json', data_files=args.dataset_path)
+data = load_dataset('json', data_files=args.dataset_path, cache_dir='/scratch/jie')
 tokenized_data = data.map(tokenize_fn)
 #data = data.map(tokenize_function, batched=True, batch_size=8)
 
@@ -299,7 +299,7 @@ training_args = TrainingArguments(
         per_device_train_batch_size=per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
         warmup_steps=100,
-        max_steps=2000,
+        max_steps=500, # changed back from 2000 to 500, given previously best results (exp6) used 500 instead of 2000
         learning_rate=1e-5,#5e-4,
         fp16=True,
         logging_steps=10,

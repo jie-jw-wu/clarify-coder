@@ -10,4 +10,4 @@ module load python rust cuda arrow/17.0.0
 source ~/ENV/bin/activate
 cd $SLURM_SUBMIT_DIR
 echo "we are in dir $SLURM_SUBMIT_DIR"
-python clarify_aware_fine_tuning_v2.py --dataset_path /project/def-fard/jie/finetuning_data/finetuningv1.json --model_name_or_path /project/def-fard/jie/deepseek-ai/deepseek-coder-6.7b-instruct --finetuned_model_path /project/def-fard/jie/finetuned_models/deepseek-coder-6.7b-instruct-finetuned-v1 > result_v2.txt --output_dir output-dir ----tokenize_version 4
+python clarify_aware_fine_tuning_v2.py --dataset_path /project/def-fard/jie/finetuning_data/finetuningv1.json --model_name_or_path /project/def-fard/jie/deepseek-ai/deepseek-coder-6.7b-instruct --output_dir output-dir --tokenize_version 4 --finetuned_model_path /project/def-fard/jie/finetuned_models/deepseek-coder-6.7b-instruct-finetuned-v1 > result_v2.txt
