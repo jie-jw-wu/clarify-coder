@@ -36,8 +36,10 @@ with open(input_file, "r", encoding="utf-8") as f:
             prompt = f"Problem: {data['problem']}\n\nSolution:"
             chosen = data["answer"]
             rejected = generate_worse_answer(chosen, data['type'])  
+            data_type = data['type']
 
             formatted_entry = {
+                "type" : data_type,
                 "prompt": prompt,
                 "chosen": chosen,
                 "rejected": rejected,
