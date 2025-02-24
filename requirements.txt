@@ -10,3 +10,7 @@ datasets
 pyarrow
 torchvision
 torchaudio
+torchtune
+torchao
+torch
+accelerate
