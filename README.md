@@ -1,9 +1,10 @@
 # clarify-aware-coder
 
 <div align="center">
-
+<a href='https://huggingface.co/datasets/jie-jw-wu/HumanEvalComm'>
+<img src="https://github.com/user-attachments/assets/4936ccfa-9dfe-41a3-a519-fd2650142cdc" alt="HumanEvalComm" height=300></img>
+</a>
 <br></br>
-  <a href="https://github.com/jie-jw-wu/clarify-aware-coder/stargazers"><img src="https://img.shields.io/github/stars/jie-jw-wu/clarify-aware-coder?style=for-the-badge&color=blue" alt="Stargazers"></a>
   <hr>
 </div>
 
