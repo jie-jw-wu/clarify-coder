@@ -1,5 +1,12 @@
 # clarify-aware-coder
 
+<div align="center">
+
+<br></br>
+  <a href="https://github.com/jie-jw-wu/clarify-aware-coder/stargazers"><img src="https://img.shields.io/github/stars/jie-jw-wu/clarify-aware-coder?style=for-the-badge&color=blue" alt="Stargazers"></a>
+  <hr>
+</div>
+
 ## Data Generation Pipeline
 - This repository contains scripts and resources for generating modified coding problem descriptions (ambiguous, inconsistent, or incomplete) from the APPS dataset and subsequently generating clarifying questions for these modified problems. The process involves several steps, each executed by specific scripts. The end-to-end pipeline is designed to work with the Gemini language model and includes mechanisms to handle potential errors and interruptions.
 ### Datasets
