@@ -1,4 +1,13 @@
-# clarify-aware-coder
+# ClarifyCoder
+
+<div align="center">
+<a href='https://github.com/jie-jw-wu/clarify-aware-coder'>
+<img src="https://github.com/user-attachments/assets/4936ccfa-9dfe-41a3-a519-fd2650142cdc" alt="ClarifyCoder" height=300></img>
+</a>
+</div>
+
+## Clarify-Aware Alignment
+- The Clarify-Aware Alignment section is dedicated to aligning the LLMs to have the ability to ask clarifying questions for ambiguous coding problem descriptions. This process ensures that the questions are contextually relevant and address the ambiguities, inconsistencies, or incompleteness in the problem descriptions. The alignment process is crucial for enhancing the problem-solving disambiguation by asking clarifying questions.
 
 ## Data Generation Pipeline
 - This repository contains scripts and resources for generating modified coding problem descriptions (ambiguous, inconsistent, or incomplete) from the APPS dataset and subsequently generating clarifying questions for these modified problems. The process involves several steps, each executed by specific scripts. The end-to-end pipeline is designed to work with the Gemini language model and includes mechanisms to handle potential errors and interruptions.
