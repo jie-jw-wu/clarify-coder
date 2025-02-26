@@ -4,6 +4,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
+# functions in this file are copied from https://github.com/jie-jw-wu/human-eval-comm/, in case any one of them is used in the future (not used yet), please refer to the original source
 def load_model(args):
     HF_HOME = args.hf_dir
     offload_folder = "offload_folder"
