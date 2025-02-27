@@ -1,49 +1,52 @@
 from trl import DPOTrainer
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, BitsAndBytesConfig
-from peft import LoraConfig, PeftModel, get_peft_model, prepare_model_for_kbit_training
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
+from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
 import torch
-import argparse
-import os
-import sys
 
+# Set model name
+model_name = "meta-llama/Llama-2-7b-chat-hf"
 
-model_name = ""
+# Load tokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = "left"
 
+# Load model
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    torch_dtype=torch.float16,
+    torch_dtype=torch.bfloat16,  
     load_in_4bit=True,
     device_map="auto"
 )
 
-model.config.use_cache = False
+model.config.use_cache = False  
+model.gradient_checkpointing_enable()  
 
+# LoRA configuration
 peft_config = LoraConfig(
     r=16,
     lora_alpha=16,
     lora_dropout=0.05,
     bias="none",
-    task_type="CASUAL_LM",
+    task_type="CAUSAL_LM",  
     target_modules=['k_proj', 'gate_proj', 'v_proj',
                     'up_proj', 'q_proj', 'o_proj', 'down_proj']
 )
 
 model = get_peft_model(model, peft_config)
 
-dataset = load_dataset("dpo_data/dpo_finetune_data.jsonl")
-dataset = dataset.rename_column({
-    "chosen": "prompt",
-    "rejected": "rejected"
-})
+# Load dataset
+dataset = load_dataset("json", data_files="dpo_data/dpo_finetune_data.jsonl")
 
+# Rename columns
+dataset = dataset.map(lambda x: {"prompt": x["chosen"], "rejected": x["rejected"]})
+
+# Training arguments
 training_args = TrainingArguments(
+    per_device_train_batch_size=4, 
     per_device_eval_batch_size=4,
     gradient_accumulation_steps=4,
-    gradient_checkpointing=True,
     learning_rate=5e-5,
     lr_scheduler_type="cosine",
     max_steps=200,
@@ -52,17 +55,15 @@ training_args = TrainingArguments(
     output_dir="./dpo_finetuned_model",
     optim="paged_adamw_32bit",
     warmup_steps=100,
-    bf16=True,
+    bf16=True,  
     report_to="wandb",
 )
-
 
 dpo_trainer = DPOTrainer(
     model=model,
     args=training_args,
-    train_dataset=dataset["train"],
+    train_dataset=dataset["train"] if "train" in dataset else dataset,
     tokenizer=tokenizer,
-    peft_config=peft_config,
     beta=0.1,
     max_prompt_length=1024,
     max_length=1536,
