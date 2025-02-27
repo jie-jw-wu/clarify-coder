@@ -14,3 +14,4 @@ torchtune
 torchao
 torch
 accelerate
+trl
