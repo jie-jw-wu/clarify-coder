@@ -338,7 +338,7 @@ old_state_dict = model.state_dict
 if torch.__version__ >= "2" and sys.platform != "win32":
     print("compiling the model")
     model = torch.compile(model)
-trainer.train()
+trainer.train(resume_from_checkpoint=True)
 
 # Evaluate the model
 results = trainer.evaluate()
