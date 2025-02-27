@@ -4,15 +4,13 @@ from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
 import torch
 
-# Set model name
+
 model_name = "meta-llama/Llama-2-7b-chat-hf"
 
-# Load tokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = "left"
 
-# Load model
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     torch_dtype=torch.bfloat16,  
@@ -23,26 +21,19 @@ model = AutoModelForCausalLM.from_pretrained(
 model.config.use_cache = False  
 model.gradient_checkpointing_enable()  
 
-# LoRA configuration
 peft_config = LoraConfig(
     r=16,
     lora_alpha=16,
     lora_dropout=0.05,
     bias="none",
     task_type="CAUSAL_LM",  
-    target_modules=['k_proj', 'gate_proj', 'v_proj',
-                    'up_proj', 'q_proj', 'o_proj', 'down_proj']
+    target_modules=['k_proj', 'gate_proj', 'v_proj', 'up_proj', 'q_proj', 'o_proj', 'down_proj']
 )
 
 model = get_peft_model(model, peft_config)
-
-# Load dataset
 dataset = load_dataset("json", data_files="dpo_data/dpo_finetune_data.jsonl")
-
-# Rename columns
 dataset = dataset.map(lambda x: {"prompt": x["chosen"], "rejected": x["rejected"]})
 
-# Training arguments
 training_args = TrainingArguments(
     per_device_train_batch_size=4, 
     per_device_eval_batch_size=4,
