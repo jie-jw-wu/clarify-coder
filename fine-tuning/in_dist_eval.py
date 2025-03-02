@@ -2,16 +2,19 @@ import argparse
 import os
 import re
 import torch
-import openai
 from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments
 from datasets import load_dataset
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+import google.generativeai as genai
+from openai import OpenAI
+import openai
 
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=gemini_api_key)
 model = genai.GenerativeModel("gemini-pro")
 
-openai.api_key = 'your_openai_api_key'
+openai.api_key = os.environ['OPENAI_API_KEY']
+client = OpenAI()
 
 def call_gemini(response):
     prompt = f"Is the following response a code or a question? Respond with 0 for code and 1 for question.\n\nResponse:\n{response}"
@@ -20,15 +23,17 @@ def call_gemini(response):
 
 def call_chatgpt(response):
     prompt = f"Is the following response a code or a question? Respond with 0 for code and 1 for question.\n\nResponse:\n{response}"
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=1,
-        n=1,
-        stop=None,
-        temperature=0
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
     )
-    return int(response.choices[0].text.strip())
+    return int(completion.choices[0].message.content.strip())
 
 def get_ask_question_rate(response):
     if len(response_2_code(response)) == 0:
@@ -61,6 +66,7 @@ def compute_metrics(pred):
         'comm_rate_gpt': comm_rate_gpt,
     }
 
+# python in_dist_eval.py --model_name_or_path /project/def-fard/jie/finetuned_models/deepseek-coder-6.7b-instruct-finetuned-02212025 --dataset_path /project/def-fard/jie/finetuning_data/FINAL_finetuning_data_ques_only.json --tokenize_version 4
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_name_or_path', type=str, required=True, help='Path to the model')
