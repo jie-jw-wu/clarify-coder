@@ -6,6 +6,31 @@
 </a>
 </div>
 
+## Getting Started
+
+Follow these steps to get started with the ClarifyCoder repository:
+
+1. **Set Up the Environment**
+   - Ensure you have Python installed on your system.
+   - Install the required Python packages using pip:
+     ```bash
+     pip install -r requirements.txt
+     ```
+     
+2. **Setup API Key** 
+    - To use LLM-based evaluator, you need to set `OPENAI_API_KEY` and `GEMINI_API_KEY` variables. 
+```bash
+export OPENAI_KEY='...'
+export GEMINI_API_KEY='...'
+```
+
+3. **Run the Data Generation Pipeline**
+    - see section [### Running the Data Generation Pipeline in one-go](#running-the-data-generation-pipeline-in-one-go) for detailed instructions
+
+4. **Run the Clarify-Aware Alignment**
+   - cd to fine-tuning folder 
+   - run `sbatch submit_job_*.sh` to submit a job to Canada Aliance that allocate a remote node with GPU that runs the fine-tuning job 
+
 ## Clarify-Aware Alignment
 - The Clarify-Aware Alignment section is dedicated to aligning the LLMs to have the ability to ask clarifying questions for ambiguous coding problem descriptions. This process ensures that the questions are contextually relevant and address the ambiguities, inconsistencies, or incompleteness in the problem descriptions. The alignment process is crucial for enhancing the problem-solving disambiguation by asking clarifying questions.
 
