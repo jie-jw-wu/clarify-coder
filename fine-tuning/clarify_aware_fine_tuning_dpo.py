@@ -67,6 +67,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_name_or_path', type=str, help='Path to the model',required=True)   
     parser.add_argument("--dataset_path",help="dataset_path",type=str,required=True)
+    parser.add_argument("-m","--model",help="LLM",type=str)
 
 
 dpo_trainer.save_model("./dpo_finetuned_model")
