@@ -3,6 +3,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
 from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
 import torch
+import argparse
 
 
 model_name = "meta-llama/Llama-2-7b-chat-hf"
@@ -61,6 +62,12 @@ dpo_trainer = DPOTrainer(
 )
 
 dpo_trainer.train()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_name_or_path', type=str, help='Path to the model',required=True)   
+    parser.add_argument("--dataset_path",help="dataset_path",type=str,required=True)
+
 
 dpo_trainer.save_model("./dpo_finetuned_model")
 tokenizer.save_pretrained("./dpo_finetuned_model")
