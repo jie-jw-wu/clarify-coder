@@ -1,10 +1,13 @@
 import json
 import os
+from dotenv import load_dotenv
 import google.generativeai as genai
 
+load_dotenv()
+print(f"GEMINI_API_KEY: {repr(os.getenv('GEMINI_API_KEY'))}")
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=gemini_api_key)
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 
 input_file = "output_splits/split_20_80_downsample.jsonl"
