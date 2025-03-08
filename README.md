@@ -2,7 +2,7 @@
 
 <div align="center">
 <a href='https://github.com/jie-jw-wu/clarify-aware-coder'>
-<img src="https://github.com/user-attachments/assets/4936ccfa-9dfe-41a3-a519-fd2650142cdc" alt="ClarifyCoder" height=300></img>
+<img src="https://github.com/jie-jw-wu/clarify-aware-coder/blob/main/ClarifyCoder-.png" alt="ClarifyCoder" height=300></img>
 </a>
 </div>
 
