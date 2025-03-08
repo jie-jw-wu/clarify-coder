@@ -15,6 +15,21 @@ def downsample_data(data, target_count):
     return random.sample(data, min(target_count, len(data)))
 
 
+def generate_original_type(file_path, output_dir, output_filename="original.jsonl"):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = [json.loads(line) for line in f]
+
+    original_data = [item for item in data if item.get('type') == "Original"]
+
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    output_file = Path(output_dir) / output_filename
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        for item in original_data:
+            f.write(json.dumps(item) + '\n')
+
+    print(f"Filtered data saved to: {output_file}")
+
 def split_and_save_jsonl(file_path, output_dir, ratio, sampling_mode):
     with open(file_path, 'r') as f:
         data = [json.loads(line) for line in f]
@@ -60,10 +75,12 @@ def split_and_save_jsonl(file_path, output_dir, ratio, sampling_mode):
 
 
 input_file = "FINAL_finetuning_everything.jsonl"
-output_dir = "output_splits"
+output_dir_splits = "output_splits"
+output_dir_original = "original_type"
 
 # Change desired ratio to what you want.
 desired_ratio = (40, 60)
 
 # Function call
-split_and_save_jsonl(input_file, output_dir, desired_ratio, "oversample")
+split_and_save_jsonl(input_file, output_dir_splits, desired_ratio, "oversample")
+generate_original_type(input_file, output_dir_original)
