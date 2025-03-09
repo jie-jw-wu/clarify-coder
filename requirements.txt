@@ -14,3 +14,5 @@ torchtune
 torchao
 torch
 accelerate
+trl
+python-dotenv
