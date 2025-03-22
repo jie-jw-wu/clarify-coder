@@ -299,7 +299,7 @@ training_args = TrainingArguments(
         per_device_train_batch_size=per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
         warmup_steps=100,
-        max_steps=2000,
+        max_steps=500,
         learning_rate=1e-5,#5e-4,
         fp16=True,
         logging_steps=10,
@@ -348,10 +348,20 @@ model.save_pretrained(args.finetuned_model_path)
 model.save_pretrained(args.finetuned_model_path + '-bin', safe_serialization=False)
 
 # Inference
-# TODO: update eval
 batch = tokenizer("Two things are infinite: ", return_tensors='pt').to('cuda') 
 
 with torch.cuda.amp.autocast():
   output_tokens = model.generate(**batch, max_new_tokens=50)
 
-print('\n\n', tokenizer.decode(output_tokens[0], skip_special_tokens=True))
+# Output the results of the trained model for val_dataset in a new file
+output_file = os.path.join(args.output_dir, "validation_results.txt")
+with open(output_file, "w") as f:
+    for i, sample in enumerate(val_dataset):
+        inputs = tokenizer(sample["problem"], return_tensors='pt').to('cuda')
+        with torch.cuda.amp.autocast():
+            output_tokens = model.generate(**inputs, max_new_tokens=50)
+        output_text = tokenizer.decode(output_tokens[0], skip_special_tokens=True)
+        f.write(f"Sample {i}:\n")
+        f.write(f"Problem: {sample['problem']}\n")
+        f.write(f"Generated Answer: {output_text}\n")
+        f.write(f"Actual Answer: {sample['answer']}\n\n")

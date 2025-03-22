@@ -5,35 +5,8 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments
 from datasets import load_dataset
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
-import google.generativeai as genai
-from openai import OpenAI
-import openai
 from peft import PeftModel
 
-gemini_api_key = os.getenv("GEMINI_API_KEY", 'default_gemini_api_key')
-genai.configure(api_key=gemini_api_key)
-model = genai.GenerativeModel("gemini-pro")
-openai.api_key = os.getenv('OPENAI_API_KEY', 'default_openai_api_key')
-client = OpenAI()
-
-def call_gemini(response):
-    prompt = f"Is the following response a code or a question? Respond with 0 for code and 1 for question.\n\nResponse:\n{response}"
-    response = model.generate_content(prompt)
-    return int(response.text.strip())
-
-def call_chatgpt(response):
-    prompt = f"Is the following response a code or a question? Respond with 0 for code and 1 for question.\n\nResponse:\n{response}"
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-    )
-    return int(completion.choices[0].message.content.strip())
 
 def get_ask_question_rate(response):
     if len(response_2_code(response)) == 0:
@@ -55,15 +28,12 @@ def compute_metrics(pred):
     precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='weighted')
     acc = accuracy_score(labels, preds)
     comm_rate = get_ask_question_rate(pred.predictions)
-    comm_rate_gpt = call_chatgpt(pred.predictions)
-    comm_rate_gemini = call_gemini(pred.predictions)
     return {
         'accuracy': acc,
         'f1': f1,
         'precision': precision,
         'recall': recall,
         'comm_rate': comm_rate,
-        'comm_rate_gpt': comm_rate_gpt,
     }
 
 # python in_dist_eval.py --model_name_or_path /project/def-fard/jie/deepseek-ai/deepseek-coder-6.7b-instruct  --finetuned_model /project/def-fard/jie/finetuned_models/deepseek-coder-6.7b-instruct-finetuned-02212025 --dataset_path /project/def-fard/jie/finetuning_data/FINAL_finetuning_data_ques_only.json  --tokenize_version 4
