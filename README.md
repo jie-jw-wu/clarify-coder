@@ -168,3 +168,16 @@ python3 step3.py --api_key <API_KEY> --dir_path AMBIGUOUS/train --jsonl_file_pat
 - Please note that for now, we used the ctrl-H feature of our editor to remove the prompt template from our files.
 - The step4 file creates the final "finetuning_data.jsonl" by combining and shuffling data from multiple different input files, while also adding another attribute "type" to our finetuning data, if not already present. 
 - We aim to add more attributes in future experiments using the script. 
+
+
+## Reference
+ Please consider citing this paper if you find this useful: 
+ 
+ Wu, Jie JW, and Fatemeh H. Fard. "ClarifyCoder: Clarification-Aware Fine-Tuning for Programmatic Problem Solving." arXiv preprint arXiv:XXXX.XXXXX (2025).
+
+@article{wu2025clarifycoder,
+   title={ClarifyCoder: Clarification-Aware Fine-Tuning for Programmatic Problem Solving},
+   author={Wu et al.},
+   journal={arXiv preprint arXiv:XXXX.XXXXX},
+   year={2025}
+}
