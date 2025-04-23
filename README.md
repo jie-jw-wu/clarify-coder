@@ -1,4 +1,4 @@
-# ClarifyCoder
+# ClarifyCoder: Clarification-Aware Fine-Tuning for Programmatic Problem Solving
 
 <div align="center">
 <a href='https://github.com/jie-jw-wu/clarify-aware-coder'>
