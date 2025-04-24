@@ -173,12 +173,12 @@ python3 step3.py --api_key <API_KEY> --dir_path AMBIGUOUS/train --jsonl_file_pat
 ## Reference
  Please consider citing this paper if you find this useful: 
  
- Wu, Jie JW, and Fatemeh H. Fard. "ClarifyCoder: Clarification-Aware Fine-Tuning for Programmatic Problem Solving." arXiv preprint (2025). <!--# arXiv:XXXX.XXXXX -->
+ Wu, Jie JW, and Fatemeh H. Fard. "ClarifyCoder: Clarification-Aware Fine-Tuning for Programmatic Problem Solving." arXiv preprint arXiv:2504.16331 (2025). 
 ```
 @article{wu2025clarifycoder,
    title={ClarifyCoder: Clarification-Aware Fine-Tuning for Programmatic Problem Solving},
    author={Wu et al.},
-   journal={arXiv preprint arXiv:XXXX.XXXXX},
+   journal={arXiv preprint arXiv:2504.16331},
    year={2025}
 }
 ```
