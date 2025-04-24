@@ -6,7 +6,7 @@
 </a>
    <br></br>
   <a href="https://arxiv.org/abs/2504.16331"><img src="https://img.shields.io/badge/Paper%20on%20Arxiv-000?logoColor=FFE165&logo=arxiv&style=for-the-badge" alt="Paper on Arxiv"></a>
-  <a href="https://github.com/jie-jw-wu/clarify-coder/stargazers"><img src="https://img.shields.io/github/stars/jie-jw-wu/clarify-coder?style=for-the-badge&color=blue" alt="Stargazers"></a>
+  <!--<a href="https://github.com/jie-jw-wu/clarify-coder/stargazers"><img src="https://img.shields.io/github/stars/jie-jw-wu/clarify-coder?style=for-the-badge&color=blue" alt="Stargazers"></a> -->
   <hr>
 </div>
 
