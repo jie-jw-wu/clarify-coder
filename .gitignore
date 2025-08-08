@@ -1,7 +1,6 @@
-APPS/
-AMBIGUOUS/
-INCOMPLETE/
-INCONSISTENT/
+input/APPS/
 .idea/
 venv/
 .env
+__pycache__
+build/
