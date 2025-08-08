@@ -4,7 +4,7 @@ import google.generativeai as genai
 
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=gemini_api_key)
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
 
 input_file = "output_splits/split_20_80_downsample.jsonl"
