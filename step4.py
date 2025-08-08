@@ -40,10 +40,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Add 'type' attribute to JSONL data and shuffle.")
     parser.add_argument('input_file', help='Path to the input JSONL file.')
     parser.add_argument('type_value', help='Value for the "type" attribute.')
+    parser.add_argument('output_file_path', help='Value for the "type" attribute.')
     args = parser.parse_args()
-
-    # Define the output file path
-    output_file_path = "finetuning_data.json"
     
     # Call the function to add the "type" attribute and shuffle data
-    add_type_attribute(args.input_file, output_file_path, args.type_value)
+    add_type_attribute(args.input_file, args.output_file_path, args.type_value)
+    print(f"JSONL file with input-output pairs saved at: {args.output_file_path}")
