@@ -67,7 +67,7 @@ def load_questions(dir_path, template):
     for i, folder_path in enumerate(tqdm(folder_paths, desc="Processing Folders", unit="folder"), start=1):
         question_file_path = os.path.join(folder_path, "modified_question.txt")
         if os.path.isfile(question_file_path):
-            with open(question_file_path, 'r') as file:
+            with open(question_file_path, 'r', encoding="utf-8") as file:
                 question_text = file.read().strip()
                 formatted_entry = template.format(question=question_text)
                 formatted_data.append(formatted_entry)
@@ -83,7 +83,7 @@ and send those inputs as questions to the model to generate new outputs
 
 def update_empty_responses(model, jsonl_file_path):
     # Read the existing jsonl file
-    with open(jsonl_file_path, 'r') as jsonl_file:
+    with open(jsonl_file_path, 'r', encoding="utf-8") as jsonl_file:
         lines = jsonl_file.readlines()
     
     updated_lines = []
@@ -111,24 +111,24 @@ def update_empty_responses(model, jsonl_file_path):
         updated_lines.append(json.dumps(entry))
     
     # Write the updated entries back to the jsonl file
-    with open(jsonl_file_path, 'w') as jsonl_file:
+    with open(jsonl_file_path, 'w', encoding="utf-8") as jsonl_file:
         for line in updated_lines:
             jsonl_file.write(line + '\n')
 
 def generate_responses(model, formatted_data, jsonl_file_path, checkpoint_file):
     start_index = 0
     if os.path.exists(checkpoint_file):
-        with open(checkpoint_file, 'r') as file:
+        with open(checkpoint_file, 'r', encoding="utf-8") as file:
             start_index = int(file.read().strip())
     
-    with open(jsonl_file_path, 'a') as jsonl_file:
+    with open(jsonl_file_path, 'a', encoding="utf-8") as jsonl_file:
         for i in tqdm(range(start_index, len(formatted_data)), desc="Generating Responses", unit="entry"):
             prompt = formatted_data[i]
             try:
                 response = model.generate_content(prompt)
                 input_output_pair = {'input': prompt, 'output': response.text}
                 jsonl_file.write(json.dumps(input_output_pair) + '\n')
-                with open(checkpoint_file, 'w') as file:
+                with open(checkpoint_file, 'w', encoding="utf-8") as file:
                     file.write(str(i + 1))
             except ResourceExhausted:
                 print(f"ResourceExhausted error occurred for prompt {i}. Retrying after a delay...")
@@ -137,7 +137,7 @@ def generate_responses(model, formatted_data, jsonl_file_path, checkpoint_file):
                     response = model.generate_content(prompt)
                     input_output_pair = {'input': prompt, 'output': response.text}
                     jsonl_file.write(json.dumps(input_output_pair) + '\n')
-                    with open(checkpoint_file, 'w') as file:
+                    with open(checkpoint_file, 'w', encoding="utf-8") as file:
                         file.write(str(i + 1))
                 except Exception as e:
                     print(f"Error occurred for prompt {i} even after retrying: {e}")

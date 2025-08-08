@@ -3,7 +3,7 @@ import json
 import argparse
 
 def process_jsonl_file(jsonl_file, output_dir):
-    with open(jsonl_file, 'r') as file:
+    with open(jsonl_file, 'r', encoding="utf-8") as file:
         for index, line in enumerate(file):
             data = json.loads(line)
             output_value = data.get('output')
@@ -14,7 +14,7 @@ def process_jsonl_file(jsonl_file, output_dir):
                 os.makedirs(folder_path, exist_ok=True)
                 
                 output_file_path = os.path.join(folder_path, 'modified_question.txt')
-                with open(output_file_path, 'w') as output_file:
+                with open(output_file_path, 'w', encoding="utf-8") as output_file:
                     output_file.write(output_value)
 
 if __name__ == "__main__":

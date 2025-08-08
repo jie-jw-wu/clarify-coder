@@ -1,4 +1,7 @@
 APPS/
 AMBIGUOUS/
+INCOMPLETE/
+INCONSISTENT/
+.idea/
 venv/
 .env
