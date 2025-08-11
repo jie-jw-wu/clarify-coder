@@ -1,7 +1,8 @@
 input/APPS/
 .idea/
-outputs/
 venv/
+input/
+outputs/
 .env
 __pycache__
 build/
