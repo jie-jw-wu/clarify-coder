@@ -229,9 +229,6 @@ def format_dpo_data(input_file, output_file, gemini_api_key, max_entries=5):
 
 
 def run_separate_jsonl_script():
-    """
-    Run the main logic from seperate_JSONL.py
-    """
     input_file = "FINAL_finetuning_everything.jsonl"
     output_dir_splits = "output_splits"
     output_dir_original = "output_original"
@@ -245,9 +242,6 @@ def run_separate_jsonl_script():
 
 
 def run_dpo_data_format_script():
-    """
-    Run the main logic from dpo_data_format.py
-    """
     gemini_api_key = os.getenv("GEMINI_API_KEY")
     input_file = "output_splits/split_20_80_downsample.jsonl"
     output_folder = "dpo_data"
@@ -258,9 +252,6 @@ def run_dpo_data_format_script():
 
 
 def run_convert_jsonl_to_json_script():
-    """
-    Run the main logic from convert_JSONL_2_JSON.py
-    """
     # Input and output file paths
     jsonl_file = "FINAL_finetuning_data_ques_only.jsonl"  # Replace with your file name
     json_file = "FINAL_finetuning_data_ques_only.json"   # Output JSON file
@@ -270,15 +261,7 @@ def run_convert_jsonl_to_json_script():
 
 
 def load_config(config_path):
-    """
-    Load configuration from YAML file.
-    
-    Args:
-        config_path (str): Path to the YAML configuration file
-        
-    Returns:
-        dict: Configuration dictionary
-    """
+    # Load configuration from YAML file.
     with open(config_path, 'r', encoding='utf-8') as file:
         config = yaml.safe_load(file)
     return config

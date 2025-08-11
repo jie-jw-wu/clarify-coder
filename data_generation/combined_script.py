@@ -1,6 +1,9 @@
 import os
 import subprocess
-from utils import *
+import sys
+
+# Add core directory to Python path
+from core.utils import *
 
 
 class DataGenPipeline:
@@ -24,8 +27,8 @@ class DataGenPipeline:
         
         # Type-specific directories
         self.type_upper = self.type.upper()
-        self.build_type_dir = os.path.join(self.build_dir, self.type_upper)
-        self.output_type_dir = os.path.join(self.output_dir, self.type_upper)
+        self.build_type_dir = f"{self.build_dir}/{self.type_upper}"
+        self.output_type_dir = f"{self.output_dir}/{self.type_upper}"
         
         # Store filenames for use in step methods
         self.filenames = self.config['data_gen']['filenames']
@@ -66,7 +69,7 @@ class DataGenPipeline:
         print(f"  Checkpoint: {step2_checkpoint}")
         
         subprocess.run([
-            self.python_venv, "step2.py", 
+            self.python_venv, "core/step2.py",
             "--api_key", self.api_key, 
             "--dir_path", self.input_dir,
             "--jsonl_file_path", step2_output,
@@ -102,7 +105,7 @@ class DataGenPipeline:
         print(f"  Checkpoint: {step3_checkpoint}")
         
         subprocess.run([
-            self.python_venv, "step3.py", 
+            self.python_venv, "core/step3.py", 
             "--api_key", self.api_key, 
             "--dir_path", step3_input,
             "--jsonl_file_path", step3_output,
@@ -122,7 +125,7 @@ class DataGenPipeline:
         print(f"  Output: {final_output}")
         
         subprocess.run([
-            self.python_venv, "step4.py", 
+            self.python_venv, "core/step4.py", 
             step3_output, self.type, final_output
         ], check=True)
         
