@@ -1,0 +1,9 @@
+includes: 
+  - agents/client_agent.yml
+  - agents/coder_agent.yml
+  - agents/verifier_agent.yml
+    
+clarify_coder:
+  interface: gemini
+  inputs:
+  output_dir: "outputs"

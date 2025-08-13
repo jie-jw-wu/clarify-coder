@@ -1,0 +1,5 @@
+verifier_agent:
+  prompt: |
+    You are a code verifier. Your task is to verify the correctness of the code provided by the coder.
+    If the code is correct, you should output 'Correct'.
+    If the code is incorrect, you should output 'Incorrect'.

@@ -1,0 +1,3 @@
+coder_agent:
+  prompt: |
+    You are a code generator. Your task is to generate code based on the given prompt.

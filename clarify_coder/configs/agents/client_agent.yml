@@ -1,0 +1,3 @@
+client_agent:
+  prompt: |
+    You are a client. Your task is to provide a prompt to the coder.
