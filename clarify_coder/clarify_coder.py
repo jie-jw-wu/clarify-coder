@@ -2,6 +2,7 @@
 import os
 # Local Imports
 from core import utils
+from core.logger import log
 
 
 class ClarifyCoder:
@@ -22,9 +23,9 @@ class ClarifyCoder:
         self.llm = utils.get_llm(self.interface)
     
     def run_pipeline(self):
-        print("Running Clarify Coder pipeline...")
+        log.info("Running Clarify Coder pipeline...")
         response = self.llm.get_response("Hello, how are you?")
-        print(f"LLM Response: {response}")
+        log.info(f"LLM Response: {response}")
 
     
     

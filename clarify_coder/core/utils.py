@@ -4,6 +4,7 @@ from pathlib import Path
 
 # Local Imports
 from interfaces.google_gemini import GoogleGeminiInterface
+from core.logger import log
 
 def load_config(config_path):
     config_path = Path(config_path)
@@ -29,7 +30,7 @@ def load_config(config_path):
                         # Merge the included config into the main config
                         config = merge_configs(config, include_config)
                 else:
-                    print(f"Warning: Include file not found: {include_full_path}")
+                    log.warning(f"Include file not found: {include_full_path}")
         
         # Remove the includes key from the final config
         config.pop('includes', None)
@@ -57,5 +58,5 @@ def get_llm(interface_name):
     else:
         raise ValueError(f"Unsupported interface: {interface_name}. Supported interfaces: gemini")
     
-    print(f"Pipeline initialized with {interface_name} interface")
+    log.info(f"Pipeline initialized with {interface_name} interface")
     return llm

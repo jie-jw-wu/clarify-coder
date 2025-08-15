@@ -2,6 +2,9 @@
 import google.generativeai as genai
 import os
 
+# Local Imports
+from core.logger import log
+
 
 class GoogleGeminiInterface:
     
@@ -20,8 +23,9 @@ class GoogleGeminiInterface:
     
     def get_response(self, prompt):
         try:
-            print(f"Prompt: {prompt} getting response from llm")
+            log.debug(f"Prompt: {prompt} getting response from llm")
             response = self.model.generate_content(prompt)
             return response.text
         except Exception as e:
+            log.error(f"Error generating response from Gemini: {str(e)}")
             raise Exception(f"Error generating response from Gemini: {str(e)}")
